@@ -9,14 +9,13 @@
         "lint:fix": "eslint src --fix",
         "format": "prettier --write src",
         "format:check": "prettier --check src",
-        "migrate:global": "db-migrate up --env global --migrations-dir migrations/global",
-        "migrate:tenant": "db-migrate up --env tenant --migrations-dir migrations/tenant"
+        "migrate:global": "node --env-file=.env --import tsx node_modules/ley/bin.js up --dir src/migrations/global --config ley.global.config.js",
+        "migrate:tenant": "node --env-file=.env --import tsx node_modules/ley/bin.js up --dir src/migrations/tenant --config ley.tenant.config.js"
     },
     "dependencies": {
         "@hono/node-server": "^1.19.11",
-        "db-migrate": "^0.11.14",
-        "db-migrate-mysql": "^3.0.0",
         "hono": "^4.12.9",
+        "ley": "^0.8.1",
         "mirror-orm": "^1.0.3",
         "mysql2": "^3.20.0"
     },

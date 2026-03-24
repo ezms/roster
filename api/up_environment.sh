@@ -20,4 +20,4 @@ export DB_HOST=${DB_HOST:-127.0.0.1}
 export DB_USER=${DB_USER:-root}
 export DB_PASSWORD=${DB_PASSWORD:-root}
 
-docker compose up "$@"
+docker compose up "$@" -d

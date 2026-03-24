@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
-      MYSQL_DATABASE: roster
+      MYSQL_DATABASE: ${DB_GLOBALDB_NAME:-roster}
     ports:
       - "${DB_PORT:-3306}:3306"
     volumes:
