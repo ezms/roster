@@ -1,16 +1,14 @@
 import { serve } from '@hono/node-server';
 import app from './app';
+import { loadRoutes } from './routes';
 
-app.get('/', (c) => {
-    return c.text('Hello Hono!');
+const HONO_SERVER_OPTIONS = {
+    fetch: app.fetch,
+    port: 3000,
+};
+
+loadRoutes(app);
+
+serve(HONO_SERVER_OPTIONS, (info) => {
+    console.log(`\u{1F680} Server is running on http://localhost:${info.port}`);
 });
-
-serve(
-    {
-        fetch: app.fetch,
-        port: 3000,
-    },
-    (info) => {
-        console.log(`\u{1F680} Server is running on http://localhost:${info.port}`);
-    },
-);
