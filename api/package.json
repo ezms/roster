@@ -12,7 +12,10 @@
     },
     "dependencies": {
         "@hono/node-server": "^1.19.11",
-        "hono": "^4.12.9"
+        "db-migrate": "^0.11.14",
+        "hono": "^4.12.9",
+        "mirror-orm": "^1.0.3",
+        "mysql2": "^3.20.0"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
