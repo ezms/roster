@@ -18,6 +18,18 @@ AttendanceRecordRef.implement({
     }),
 });
 
+builder.queryFields((t) => ({
+    attendanceRecords: t.field({
+        type: [AttendanceRecordRef],
+        args: { sessionId: t.arg.int({ required: true }) },
+        resolve: (_root, args, ctx) => {
+            return ctx.tenantConnection.getRepository(AttendanceRecord).find({
+                where: { sessionId: args.sessionId },
+            });
+        },
+    }),
+}));
+
 builder.mutationFields((t) => ({
     registerAttendance: t.field({
         type: AttendanceRecordRef,
