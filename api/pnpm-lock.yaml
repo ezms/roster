@@ -27,8 +27,8 @@ importers:
         specifier: ^0.8.1
         version: 0.8.1
       mirror-orm:
-        specifier: ^1.0.3
-        version: 1.0.3(mysql2@3.20.0(@types/node@20.19.37))
+        specifier: ^1.0.4
+        version: 1.0.4(mysql2@3.20.0(@types/node@20.19.37))
       mysql2:
         specifier: ^3.20.0
         version: 3.20.0(@types/node@20.19.37)
@@ -725,8 +725,8 @@ packages:
     resolution: {integrity: sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==}
     engines: {node: 18 || 20 || >=22}
 
-  mirror-orm@1.0.3:
-    resolution: {integrity: sha512-6aSBOfXEyOxYB9jZxDAMGb7b7dxAINStEEnvNnMku0ZJLZX6ReA/J1cQ/eLkImVXE2Xzm2MkTHZPSoRU9IblLw==}
+  mirror-orm@1.0.4:
+    resolution: {integrity: sha512-j8BLSgLGhkohiyUQrl/bKI1sMGDpLMwHcGHaN7VtLVa+ryfoNrpivwQyp8QHn3rzmEAX9wANRBGSQ4dXvUih0g==}
     engines: {node: '>=20.0.0', pnpm: '>=10.0.0'}
     peerDependencies:
       better-sqlite3: '>=9'
@@ -1530,7 +1530,7 @@ snapshots:
     dependencies:
       brace-expansion: 5.0.4
 
-  mirror-orm@1.0.3(mysql2@3.20.0(@types/node@20.19.37)):
+  mirror-orm@1.0.4(mysql2@3.20.0(@types/node@20.19.37)):
     dependencies:
       '@paralleldrive/cuid2': 3.3.0
     optionalDependencies:

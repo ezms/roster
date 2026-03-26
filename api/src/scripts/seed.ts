@@ -35,7 +35,7 @@ const [[school]] = await conn.query<mysql.RowDataPacket[]>(
 );
 
 await conn.query(
-    'INSERT INTO account_schools (account_id, school_id) VALUES (?, ?)',
+    'INSERT IGNORE INTO account_schools (account_id, school_id) VALUES (?, ?)',
     [account.id, school.id],
 );
 
