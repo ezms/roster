@@ -1,8 +1,13 @@
 import type { Hono } from 'hono';
 import { sign } from 'hono/jwt';
-import { compare } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { getGlobalConnection } from '@/database/connections/mirror-orm';
+import { In } from 'mirror-orm';
 import { Account } from '@/models/global/account';
+import { AccountSchool } from '@/models/global/account-school';
+import { School } from '@/models/global/school';
+
+const DUMMY_HASH = await hash('__dummy__', 10);
 
 export function loadAuthRoutes(app: Hono) {
     app.post('/auth/login', async (c) => {
@@ -13,14 +18,19 @@ export function loadAuthRoutes(app: Hono) {
             where: { email },
         });
 
-        if (!account) {
+        const valid = await compare(password, account?.password ?? DUMMY_HASH);
+
+        if (!account || !valid) {
             return c.json({ error: 'Invalid credentials' }, 401);
         }
 
-        const valid = await compare(password, account.password);
-        if (!valid) {
-            return c.json({ error: 'Invalid credentials' }, 401);
-        }
+        const links = await conn.getRepository(AccountSchool).find({
+            where: { accountId: account.id },
+        });
+
+        const schools = await conn.getRepository(School).find({
+            where: { id: In(links.map((l) => l.schoolId)) },
+        });
 
         const token = await sign(
             { accountId: account.id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 },
@@ -28,6 +38,6 @@ export function loadAuthRoutes(app: Hono) {
             'HS256',
         );
 
-        return c.json({ token });
+        return c.json({ token, schools });
     });
 }

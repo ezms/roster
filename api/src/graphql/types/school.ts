@@ -7,7 +7,10 @@ SchoolRef.implement({
     fields: (t) => ({
         id: t.exposeInt('id'),
         name: t.exposeString('name'),
-        dbHash: t.exposeString('dbHash'),
+        dbHash: t.field({
+            type: 'String',
+            resolve: (school) => school.databaseHash,
+        }),
         createdAt: t.field({
             type: 'String',
             resolve: (school) => school.createdAt.toISOString(),

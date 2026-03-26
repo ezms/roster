@@ -13,15 +13,32 @@ const conn = await mysql.createConnection({
 const passwordHash = await hash('password123', 10);
 
 await conn.query(
-    'INSERT INTO accounts (email, password_hash) VALUES (?, ?)',
+    'INSERT IGNORE INTO accounts (email, password_hash) VALUES (?, ?)',
     ['admin@test.com', passwordHash],
 );
 
-console.log('[seed] Account created: admin@test.com / password123');
+const [[account]] = await conn.query<mysql.RowDataPacket[]>(
+    'SELECT id FROM accounts WHERE email = ?',
+    ['admin@test.com'],
+);
 
-await conn.end();
+console.log('[seed] Account ready: admin@test.com / password123');
 
 execSync('pnpm tenant:create "Escola Teste"', {
     stdio: 'inherit',
     env: { ...process.env },
 });
+
+const [[school]] = await conn.query<mysql.RowDataPacket[]>(
+    'SELECT id FROM schools WHERE name = ?',
+    ['Escola Teste'],
+);
+
+await conn.query(
+    'INSERT INTO account_schools (account_id, school_id) VALUES (?, ?)',
+    [account.id, school.id],
+);
+
+console.log('[seed] Account linked to school');
+
+await conn.end();
