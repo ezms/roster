@@ -24,6 +24,14 @@ const CreateStudentInput = builder.inputType('CreateStudentInput', {
     }),
 });
 
+const UpdateStudentInput = builder.inputType('UpdateStudentInput', {
+    fields: (t) => ({
+        name: t.string({ required: false }),
+        code: t.string({ required: false }),
+        photoUrl: t.string({ required: false }),
+    }),
+});
+
 builder.queryFields((t) => ({
     students: t.field({
         type: [StudentRef],
@@ -52,6 +60,31 @@ builder.mutationFields((t) => ({
             student.code = args.input.code;
             student.photoUrl = args.input.photoUrl ?? null;
             return repo.save(student);
+        },
+    }),
+    updateStudent: t.field({
+        type: StudentRef,
+        args: {
+            id: t.arg.int({ required: true }),
+            input: t.arg({ type: UpdateStudentInput, required: true }),
+        },
+        resolve: async (_root, args, ctx) => {
+            const repo = ctx.tenantConnection.getRepository(Student);
+            const student = await repo.findOneOrFail({ where: { id: args.id } });
+            if (args.input.name != null) student.name = args.input.name;
+            if (args.input.code != null) student.code = args.input.code;
+            if (args.input.photoUrl !== undefined) student.photoUrl = args.input.photoUrl ?? null;
+            return repo.save(student);
+        },
+    }),
+    deleteStudent: t.field({
+        type: 'Boolean',
+        args: { id: t.arg.int({ required: true }) },
+        resolve: async (_root, args, ctx) => {
+            const repo = ctx.tenantConnection.getRepository(Student);
+            const student = await repo.findOneOrFail({ where: { id: args.id } });
+            await repo.remove(student);
+            return true;
         },
     }),
 }));

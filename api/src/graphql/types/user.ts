@@ -26,6 +26,13 @@ const CreateUserInput = builder.inputType('CreateUserInput', {
     }),
 });
 
+const UpdateUserInput = builder.inputType('UpdateUserInput', {
+    fields: (t) => ({
+        name: t.string({ required: false }),
+        role: t.string({ required: false }),
+    }),
+});
+
 builder.queryFields((t) => ({
     users: t.field({
         type: [UserRef],
@@ -71,6 +78,30 @@ builder.mutationFields((t) => ({
             }
 
             return saved;
+        },
+    }),
+    updateUser: t.field({
+        type: UserRef,
+        args: {
+            id: t.arg.int({ required: true }),
+            input: t.arg({ type: UpdateUserInput, required: true }),
+        },
+        resolve: async (_root, args, ctx) => {
+            const repo = ctx.tenantConnection.getRepository(User);
+            const user = await repo.findOneOrFail({ where: { id: args.id } });
+            if (args.input.name != null) user.name = args.input.name;
+            if (args.input.role != null) user.role = args.input.role as 'admin' | 'teacher';
+            return repo.save(user);
+        },
+    }),
+    deleteUser: t.field({
+        type: 'Boolean',
+        args: { id: t.arg.int({ required: true }) },
+        resolve: async (_root, args, ctx) => {
+            const repo = ctx.tenantConnection.getRepository(User);
+            const user = await repo.findOneOrFail({ where: { id: args.id } });
+            await repo.remove(user);
+            return true;
         },
     }),
 }));
