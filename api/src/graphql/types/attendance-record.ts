@@ -1,8 +1,10 @@
-import { IsNull } from 'mirror-orm';
+import { In, IsNull } from 'mirror-orm';
 import { builder } from '../builder';
 import { AttendanceRecord } from '@/models/tenant/attendance-record';
 import { AttendanceSession } from '@/models/tenant/attendance-session';
 import { Student } from '@/models/tenant/student';
+import { ClassStudent } from '@/models/tenant/class-student';
+import { StudentRef } from './student';
 
 const AttendanceRecordRef = builder.objectRef<AttendanceRecord>('AttendanceRecord');
 
@@ -19,6 +21,34 @@ AttendanceRecordRef.implement({
 });
 
 builder.queryFields((t) => ({
+    absentStudents: t.field({
+        type: [StudentRef],
+        args: { sessionId: t.arg.int({ required: true }) },
+        resolve: async (_root, args, ctx) => {
+            const session = await ctx.tenantConnection
+                .getRepository(AttendanceSession)
+                .findOneOrFail({ where: { id: args.sessionId } });
+
+            const enrolled = await ctx.tenantConnection
+                .getRepository(ClassStudent)
+                .find({ where: { classId: session.classId } });
+
+            const presentIds = await ctx.tenantConnection
+                .getRepository(AttendanceRecord)
+                .find({ where: { sessionId: args.sessionId } })
+                .then((records) => records.map((r) => r.studentId));
+
+            const absentIds = enrolled
+                .map((cs) => cs.studentId)
+                .filter((id) => !presentIds.includes(id));
+
+            if (absentIds.length === 0) return [];
+
+            return ctx.tenantConnection
+                .getRepository(Student)
+                .find({ where: { id: In(absentIds) } });
+        },
+    }),
     attendanceRecords: t.field({
         type: [AttendanceRecordRef],
         args: { sessionId: t.arg.int({ required: true }) },

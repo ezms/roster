@@ -1,7 +1,7 @@
 import { builder } from '../builder';
 import { Student } from '@/models/tenant/student';
 
-const StudentRef = builder.objectRef<Student>('Student');
+export const StudentRef = builder.objectRef<Student>('Student');
 
 StudentRef.implement({
     fields: (t) => ({
