@@ -15,6 +15,8 @@
     },
     "dependencies": {
         "@hono/node-server": "^1.19.11",
+        "@pothos/core": "^4.12.0",
+        "graphql-yoga": "^5.18.1",
         "hono": "^4.12.9",
         "ley": "^0.8.1",
         "mirror-orm": "^1.0.3",
