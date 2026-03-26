@@ -8,7 +8,7 @@ export class Account {
     @Column('email')
     email!: string;
 
-    @Column({ name: 'password_hash', select: false })
+    @Column('password_hash')
     password!: string;
 
     @CreatedAt('created_at')
