@@ -1,5 +1,7 @@
 import { builder } from '../builder';
 import { User } from '@/models/tenant/user';
+import { AccountSchool } from '@/models/global/account-school';
+import { School } from '@/models/global/school';
 
 const UserRef = builder.objectRef<User>('User');
 
@@ -51,7 +53,24 @@ builder.mutationFields((t) => ({
             user.accountId = args.input.accountId;
             user.name = args.input.name;
             user.role = args.input.role as 'admin' | 'teacher';
-            return repo.save(user);
+            const saved = await repo.save(user);
+
+            const school = await ctx.globalConnection
+                .getRepository(School)
+                .findOneOrFail({ where: { databaseHash: ctx.tenantDbName.replace('roster_', '') } });
+
+            const alreadyLinked = await ctx.globalConnection
+                .getRepository(AccountSchool)
+                .exists({ accountId: args.input.accountId, schoolId: school.id });
+
+            if (!alreadyLinked) {
+                const link = new AccountSchool();
+                link.accountId = args.input.accountId;
+                link.schoolId = school.id;
+                await ctx.globalConnection.getRepository(AccountSchool).save(link);
+            }
+
+            return saved;
         },
     }),
 }));
