@@ -22,11 +22,13 @@
         "hono": "^4.12.9",
         "ley": "^0.8.1",
         "mirror-orm": "^1.0.4",
-        "mysql2": "^3.20.0"
+        "mysql2": "^3.20.0",
+        "qrcode": "^1.5.4"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@types/node": "^20.11.17",
+        "@types/qrcode": "^1.5.6",
         "eslint": "^10.1.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",

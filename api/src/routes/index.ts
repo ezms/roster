@@ -3,6 +3,7 @@ import { createYoga } from 'graphql-yoga';
 import { schema } from '@/graphql/schema';
 import { createContext } from '@/graphql/context';
 import { loadAuthRoutes } from './auth';
+import { loadCardRoutes } from './cards';
 
 const yoga = createYoga({
     schema,
@@ -11,5 +12,6 @@ const yoga = createYoga({
 
 export const loadRoutes = (app: Hono) => {
     loadAuthRoutes(app);
+    loadCardRoutes(app);
     app.use('/graphql', async (c) => await yoga.handle(c.req.raw));
 };
