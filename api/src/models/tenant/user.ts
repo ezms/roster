@@ -1,15 +1,18 @@
 import { Column, CreatedAt, Entity, PrimaryColumn } from 'mirror-orm';
 
-@Entity('accounts')
-export class Account {
+@Entity('users')
+export class User {
     @PrimaryColumn({ strategy: 'identity' })
     id!: number;
 
-    @Column('email')
-    email!: string;
+    @Column('account_id')
+    accountId!: number;
 
-    @Column({ name: 'password_hash', select: false })
-    password!: string;
+    @Column('name')
+    name!: string;
+
+    @Column('role')
+    role!: 'admin' | 'teacher';
 
     @CreatedAt('created_at')
     createdAt!: Date;
