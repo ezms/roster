@@ -35,6 +35,9 @@ builder.mutationFields((t) => ({
                 .getRepository(Student)
                 .findOneOrFail({ where: { code: args.studentCode } });
 
+            const alreadyRegistered = await repo.exists({ sessionId: session.id, studentId: student.id });
+            if (alreadyRegistered) throw new Error('Attendance already registered for this student in the current session');
+
             const record = new AttendanceRecord();
             record.sessionId = session.id;
             record.studentId = student.id;
