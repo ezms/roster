@@ -3,12 +3,14 @@ import { verify } from 'hono/jwt';
 import { getGlobalConnection, getTenantConnection } from '@/database/connections/mirror-orm';
 import { AccountSchool } from '@/models/global/account-school';
 import { School } from '@/models/global/school';
+import { User } from '@/models/tenant/user';
 
 export interface Context {
     globalConnection: Connection;
     tenantConnection: Connection;
     tenantDbName: string;
     accountId: number;
+    tenantUserId: number | null;
 }
 
 export async function createContext(request: Request): Promise<Context> {
@@ -39,5 +41,9 @@ export async function createContext(request: Request): Promise<Context> {
     const tenantDbName = `roster_${tenantId}`;
     const tenantConnection = await getTenantConnection(tenantDbName);
 
-    return { globalConnection, tenantConnection, tenantDbName, accountId: payload.accountId };
+    const tenantUser = await tenantConnection.getRepository(User).findOne({
+        where: { accountId: payload.accountId },
+    });
+
+    return { globalConnection, tenantConnection, tenantDbName, accountId: payload.accountId, tenantUserId: tenantUser?.id ?? null };
 }

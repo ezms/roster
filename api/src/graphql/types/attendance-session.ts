@@ -8,6 +8,7 @@ AttendanceSessionRef.implement({
     fields: (t) => ({
         id: t.exposeInt('id'),
         openedBy: t.exposeInt('openedBy'),
+        classId: t.exposeInt('classId'),
         openedAt: t.field({
             type: 'String',
             resolve: (session) => session.openedAt.toISOString(),
@@ -41,11 +42,14 @@ builder.queryFields((t) => ({
 builder.mutationFields((t) => ({
     openSession: t.field({
         type: AttendanceSessionRef,
-        args: { openedBy: t.arg.int({ required: true }) },
+        args: { classId: t.arg.int({ required: true }) },
         resolve: async (_root, args, ctx) => {
+            const { tenantUserId } = ctx;
+            if (!tenantUserId) throw new Error('User not found in tenant');
             const repo = ctx.tenantConnection.getRepository(AttendanceSession);
             const session = new AttendanceSession();
-            session.openedBy = args.openedBy;
+            session.openedBy = tenantUserId;
+            session.classId = args.classId;
             return repo.save(session);
         },
     }),

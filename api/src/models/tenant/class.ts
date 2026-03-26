@@ -1,12 +1,15 @@
 import { Column, CreatedAt, Entity, PrimaryColumn } from 'mirror-orm';
 
-@Entity('report_templates')
-export class ReportTemplate {
+@Entity('classes')
+export class Class {
     @PrimaryColumn({ strategy: 'identity' })
     id!: number;
 
-    @Column('config')
-    config!: Record<string, unknown>;
+    @Column('name')
+    name!: string;
+
+    @Column('user_id')
+    userId!: number;
 
     @CreatedAt('created_at')
     createdAt!: Date;

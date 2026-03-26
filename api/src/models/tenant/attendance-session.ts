@@ -12,6 +12,9 @@ export class AttendanceSession {
     @Column({ name: 'opened_at', type: 'datetime' })
     openedAt!: Date;
 
+    @Column('class_id')
+    classId!: number;
+
     @Column({ name: 'closed_at', type: 'datetime', nullable: true })
     closedAt!: Date | null;
 
