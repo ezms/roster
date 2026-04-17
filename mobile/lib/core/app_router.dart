@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/home/home_screen.dart';
+import 'package:mobile/features/login/login_screen.dart';
 import 'package:mobile/features/splash/splash_screen.dart';
 
 class AppRouter {
@@ -10,5 +11,6 @@ class AppRouter {
   static Map<String, WidgetBuilder> get routes => {
     splash: (context) => const SplashScreen(),
     home: (context) => const HomeScreen(),
+    login: (context) => const LoginScreen(),
   };
 }
