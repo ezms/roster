@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
+import 'package:mobile/core/auth_controller.dart';
+import 'package:mobile/core/models/school.dart';
 import 'package:mobile/features/login/login_controller.dart';
+import 'package:mobile/features/login/widgets/school_picker_bottom_sheet.dart';
 
-class LoginCardWidget extends StatefulWidget {
-  const LoginCardWidget({super.key});
+class LoginCard extends StatefulWidget {
+  const LoginCard({super.key});
 
   @override
-  State<LoginCardWidget> createState() => _LoginCardWidgetState();
+  State<LoginCard> createState() => _LoginCardState();
 }
 
-class _LoginCardWidgetState extends State<LoginCardWidget> {
+class _LoginCardState extends State<LoginCard> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -17,13 +20,29 @@ class _LoginCardWidgetState extends State<LoginCardWidget> {
 
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-
     final success = await _controller.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
-
     if (!success || !mounted) return;
+    _controller.needsSchoolSelection ? _openSchoolPicker() : _goHome();
+  }
+
+  Future<void> _openSchoolPicker() async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (_) => SchoolPickerBottomSheet(
+        schools: AuthController.schools,
+        onSelected: (School school) async {
+          await _controller.selectSchool(school);
+          if (!mounted) return;
+          _goHome();
+        },
+      ),
+    );
+  }
+
+  void _goHome() {
     Navigator.pushReplacementNamed(context, '/home');
   }
 
