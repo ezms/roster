@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthController {
   static const String _tokenKey = "auth_token";
   static const String _tenantKey = "tenant_id";
+  static const String _schoolNameKey = "school_name";
 
   static List<School> _schools = [];
   static List<School> get schools => _schools;
@@ -25,6 +26,12 @@ class AuthController {
   Future<void> selectSchool(School school) async {
     final preferences = await SharedPreferences.getInstance();
     await preferences.setString(_tenantKey, school.id.toString());
+    await preferences.setString(_schoolNameKey, school.name);
+  }
+
+  Future<String?> getSchoolName() async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getString(_schoolNameKey);
   }
 
   Future<bool> checkAuthTokenPresent() async {
