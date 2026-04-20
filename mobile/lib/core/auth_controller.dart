@@ -25,7 +25,7 @@ class AuthController {
 
   Future<void> selectSchool(School school) async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setString(_tenantKey, school.id.toString());
+    await preferences.setString(_tenantKey, school.databaseHash);
     await preferences.setString(_schoolNameKey, school.name);
   }
 
