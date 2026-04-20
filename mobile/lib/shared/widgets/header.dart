@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Header extends StatelessWidget implements PreferredSizeWidget {
   final ChangeNotifier controller;
@@ -19,6 +20,16 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.surface,
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear();
+              Navigator.pushReplacementNamed(context, '/');
+            },
+          ),
+        ],
       ),
     );
   }

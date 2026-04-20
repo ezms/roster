@@ -3,6 +3,7 @@ import 'package:mobile/core/app_colors.dart';
 import 'package:mobile/core/models/class.dart';
 import 'package:mobile/features/home/controllers/class_controller.dart';
 import 'package:mobile/features/home/controllers/home_controller.dart';
+import 'package:mobile/features/scanner/scanner_screen.dart';
 import 'package:mobile/shared/widgets/header.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,20 +51,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _classController.classes.isEmpty
-                ? const Text('Nenhuma turma cadastrada')
-                : DropdownButton<Class>(
-                    hint: const Text('Selecione uma turma'),
-                    value: _selectedClass,
-                    items: _classController.classes
-                        .map(
-                          (c) =>
-                              DropdownMenuItem(value: c, child: Text(c.name)),
-                        )
-                        .toList(),
-                    onChanged: (value) =>
-                        setState(() => _selectedClass = value),
-                  ),
+            !_classController.loaded
+                ? const CircularProgressIndicator()
+                : _classController.classes.isEmpty
+                    ? const Text('Nenhuma turma cadastrada')
+                    : DropdownButton<Class>(
+                        hint: const Text('Selecione uma turma'),
+                        value: _selectedClass,
+                        items: _classController.classes
+                            .map((c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(c.name),
+                                ))
+                            .toList(),
+                        onChanged: (value) =>
+                            setState(() => _selectedClass = value),
+                      ),
             const SizedBox(height: 32),
             AnimatedScale(
               scale: _pressed ? 0.42 : 1.0,
@@ -73,7 +76,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTapUp: (_) => setState(() => _pressed = false),
                 onTapCancel: () => setState(() => _pressed = false),
                 child: OutlinedButton(
-                  onPressed: _buttonEnabled ? () {} : null,
+                  onPressed: _buttonEnabled
+                      ? () => Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) =>
+                                  const ScannerScreen(),
+                              transitionsBuilder: (_, animation, __, child) {
+                                final curved = CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOut,
+                                );
+                                return FadeTransition(
+                                  opacity: curved,
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0, 1),
+                                      end: Offset.zero,
+                                    ).animate(curved),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                      : null,
                   style: OutlinedButton.styleFrom(
                     shape: const CircleBorder(),
                     backgroundColor: AppColors.surface,
