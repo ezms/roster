@@ -11,6 +11,9 @@ export class Account {
     @Column('password_hash')
     password!: string;
 
+    @Column('platform_role')
+    platformRole!: 'user' | 'super';
+
     @CreatedAt('created_at')
     createdAt!: Date;
 }

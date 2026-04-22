@@ -1,4 +1,4 @@
-import { Column, CreatedAt, Entity, PrimaryColumn } from 'mirror-orm';
+import { Column, CreatedAt, DeletedAt, Entity, PrimaryColumn } from 'mirror-orm';
 
 @Entity('users')
 export class User {
@@ -12,8 +12,11 @@ export class User {
     name!: string;
 
     @Column('role')
-    role!: 'admin' | 'teacher';
+    role!: 'admin' | 'teacher' | 'secretary' | 'teacher_admin';
 
     @CreatedAt('created_at')
     createdAt!: Date;
+
+    @DeletedAt('deleted_at')
+    deletedAt!: Date | null;
 }
