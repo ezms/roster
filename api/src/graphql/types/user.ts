@@ -34,6 +34,14 @@ const UpdateUserInput = builder.inputType('UpdateUserInput', {
 });
 
 builder.queryFields((t) => ({
+    me: t.field({
+        type: UserRef,
+        nullable: true,
+        resolve: (_root, _args, ctx) => {
+            if (!ctx.tenantUserId) return null;
+            return ctx.tenantConnection.getRepository(User).findById(ctx.tenantUserId);
+        },
+    }),
     users: t.field({
         type: [UserRef],
         resolve: (_root, _args, ctx) => {
