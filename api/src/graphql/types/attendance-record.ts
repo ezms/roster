@@ -5,6 +5,7 @@ import { AttendanceSession } from '@/models/tenant/attendance-session';
 import { Student } from '@/models/tenant/student';
 import { ClassStudent } from '@/models/tenant/class-student';
 import { StudentRef } from './student';
+import { requireRole } from '../permissions';
 
 const AttendanceRecordRef = builder.objectRef<AttendanceRecord>('AttendanceRecord');
 
@@ -67,6 +68,7 @@ builder.mutationFields((t) => ({
             studentCode: t.arg.string({ required: true }),
         },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'teacher', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(AttendanceRecord);
 
             const session = await ctx.tenantConnection

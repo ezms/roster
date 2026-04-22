@@ -2,6 +2,7 @@ import { builder } from '../builder';
 import { Student } from '@/models/tenant/student';
 import { StudentCard } from '@/models/tenant/student-card';
 import { ClassStudent } from '@/models/tenant/class-student';
+import { requireRole } from '../permissions';
 
 const StudentCardRef = builder.objectRef<StudentCard>('StudentCard');
 StudentCardRef.implement({
@@ -118,6 +119,7 @@ builder.mutationFields((t) => ({
         type: StudentRef,
         args: { input: t.arg({ type: CreateStudentInput, required: true }) },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(Student);
             const student = new Student();
             student.name = args.input.name;
@@ -133,6 +135,7 @@ builder.mutationFields((t) => ({
             input: t.arg({ type: UpdateStudentInput, required: true }),
         },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(Student);
             const student = await repo.findOneOrFail({ where: { id: args.id } });
             if (args.input.name != null) student.name = args.input.name;
@@ -145,10 +148,22 @@ builder.mutationFields((t) => ({
         type: 'Boolean',
         args: { id: t.arg.int({ required: true }) },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(Student);
             const student = await repo.findOneOrFail({ where: { id: args.id } });
             await repo.remove(student);
             return true;
+        },
+    }),
+    restoreStudent: t.field({
+        type: StudentRef,
+        args: { id: t.arg.int({ required: true }) },
+        resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
+            const repo = ctx.tenantConnection.getRepository(Student);
+            const student = await repo.findOneOrFail({ where: { id: args.id }, withDeleted: true });
+            student.deletedAt = null;
+            return repo.save(student);
         },
     }),
 }));

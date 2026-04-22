@@ -1,6 +1,7 @@
 import { IsNull } from 'mirror-orm';
 import { builder } from '../builder';
 import { AttendanceSession } from '@/models/tenant/attendance-session';
+import { requireRole } from '../permissions';
 
 const AttendanceSessionRef = builder.objectRef<AttendanceSession>('AttendanceSession');
 
@@ -44,6 +45,7 @@ builder.mutationFields((t) => ({
         type: AttendanceSessionRef,
         args: { classId: t.arg.int({ required: true }) },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'teacher', 'teacher_admin');
             const { tenantUserId } = ctx;
             if (!tenantUserId) throw new Error('User not found in tenant');
             const repo = ctx.tenantConnection.getRepository(AttendanceSession);
@@ -57,6 +59,7 @@ builder.mutationFields((t) => ({
         type: AttendanceSessionRef,
         args: { id: t.arg.int({ required: true }) },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'teacher', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(AttendanceSession);
             const session = await repo.findOneOrFail({ where: { id: args.id, closedAt: IsNull() } });
             session.closedAt = new Date();

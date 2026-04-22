@@ -1,6 +1,7 @@
 import type { Connection } from 'mirror-orm';
 import { verify } from 'hono/jwt';
 import { getGlobalConnection, getTenantConnection } from '@/database/connections/mirror-orm';
+import { Account } from '@/models/global/account';
 import { AccountSchool } from '@/models/global/account-school';
 import { School } from '@/models/global/school';
 import { User } from '@/models/tenant/user';
@@ -10,7 +11,9 @@ export interface Context {
     tenantConnection: Connection;
     tenantDbName: string;
     accountId: number;
+    isSuperUser: boolean;
     tenantUserId: number | null;
+    tenantUserRole: User['role'] | null;
 }
 
 export async function createContext(request: Request): Promise<Context> {
@@ -41,9 +44,23 @@ export async function createContext(request: Request): Promise<Context> {
     const tenantDbName = `roster_${tenantId}`;
     const tenantConnection = await getTenantConnection(tenantDbName);
 
+    const account = await globalConnection.getRepository(Account).findOne({
+        where: { id: payload.accountId },
+    });
+
+    if (!account) throw new Error('Account not found');
+
     const tenantUser = await tenantConnection.getRepository(User).findOne({
         where: { accountId: payload.accountId },
     });
 
-    return { globalConnection, tenantConnection, tenantDbName, accountId: payload.accountId, tenantUserId: tenantUser?.id ?? null };
+    return {
+        globalConnection,
+        tenantConnection,
+        tenantDbName,
+        accountId: payload.accountId,
+        isSuperUser: account.platformRole === 'super',
+        tenantUserId: tenantUser?.id ?? null,
+        tenantUserRole: tenantUser?.role ?? null,
+    };
 }

@@ -2,6 +2,7 @@ import { builder } from '../builder';
 import { User } from '@/models/tenant/user';
 import { AccountSchool } from '@/models/global/account-school';
 import { School } from '@/models/global/school';
+import { requireRole } from '../permissions';
 
 const UserRef = builder.objectRef<User>('User');
 
@@ -45,6 +46,7 @@ builder.queryFields((t) => ({
     users: t.field({
         type: [UserRef],
         resolve: (_root, _args, ctx) => {
+            requireRole(ctx, 'admin', 'teacher_admin', 'secretary');
             return ctx.tenantConnection.getRepository(User).findAll();
         },
     }),
@@ -53,6 +55,7 @@ builder.queryFields((t) => ({
         nullable: true,
         args: { id: t.arg.int({ required: true }) },
         resolve: (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'teacher_admin', 'secretary');
             return ctx.tenantConnection.getRepository(User).findById(args.id);
         },
     }),
@@ -63,11 +66,12 @@ builder.mutationFields((t) => ({
         type: UserRef,
         args: { input: t.arg({ type: CreateUserInput, required: true }) },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(User);
             const user = new User();
             user.accountId = args.input.accountId;
             user.name = args.input.name;
-            user.role = args.input.role as 'admin' | 'teacher';
+            user.role = args.input.role as User['role'];
             const saved = await repo.save(user);
 
             const school = await ctx.globalConnection
@@ -95,10 +99,11 @@ builder.mutationFields((t) => ({
             input: t.arg({ type: UpdateUserInput, required: true }),
         },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(User);
             const user = await repo.findOneOrFail({ where: { id: args.id } });
             if (args.input.name != null) user.name = args.input.name;
-            if (args.input.role != null) user.role = args.input.role as 'admin' | 'teacher';
+            if (args.input.role != null) user.role = args.input.role as User['role'];
             return repo.save(user);
         },
     }),
@@ -106,10 +111,22 @@ builder.mutationFields((t) => ({
         type: 'Boolean',
         args: { id: t.arg.int({ required: true }) },
         resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'teacher_admin');
             const repo = ctx.tenantConnection.getRepository(User);
             const user = await repo.findOneOrFail({ where: { id: args.id } });
             await repo.remove(user);
             return true;
+        },
+    }),
+    restoreUser: t.field({
+        type: UserRef,
+        args: { id: t.arg.int({ required: true }) },
+        resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'teacher_admin');
+            const repo = ctx.tenantConnection.getRepository(User);
+            const user = await repo.findOneOrFail({ where: { id: args.id }, withDeleted: true });
+            user.deletedAt = null;
+            return repo.save(user);
         },
     }),
 }));
