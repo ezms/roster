@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
+import 'package:mobile/features/settings/screens/change_password_screen.dart';
 import 'package:mobile/features/settings/models/settings_item_model.dart';
 import 'package:mobile/features/settings/widgets/settings_item.dart';
 import 'package:mobile/features/settings/widgets/user_info_card.dart';
@@ -14,10 +15,13 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mainItems = [
-      const SettingsItemModel(
+      SettingsItemModel(
         icon: Icons.lock_outline,
         label: 'Trocar senha',
-        onTap: null,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
+        ),
       ),
       SettingsItemModel(
         icon: Icons.dark_mode_outlined,
