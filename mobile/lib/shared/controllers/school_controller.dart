@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/auth_controller.dart';
 
-class HomeController extends ChangeNotifier {
+class SchoolController extends ChangeNotifier {
   String schoolName = '';
 
-  HomeController() {
+  SchoolController() {
     _loadSchoolName();
   }
 
