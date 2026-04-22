@@ -68,34 +68,35 @@ class _ScannerScreenState extends State<ScannerScreen> {
       body: Column(
         children: [
           Expanded(
-            child: Stack(
-              alignment: Alignment.center,
+            child: MobileScanner(
+              controller: _scannerController,
+              onDetect: _onDetect,
+            ),
+          ),
+          Container(
+            color: Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                MobileScanner(
-                  controller: _scannerController,
-                  onDetect: _onDetect,
-                ),
-                Positioned(
-                  top: 52,
-                  child: Text(
-                    _chronometer,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      shadows: [Shadow(blurRadius: 8, color: Colors.black)],
-                    ),
+                IconButton(
+                  onPressed: _togglePause,
+                  icon: Icon(
+                    _paused ? Icons.play_arrow : Icons.pause,
+                    color: Colors.white,
+                    size: 36,
                   ),
                 ),
                 SizedBox(
-                  width: 120,
-                  height: 120,
+                  width: 56,
+                  height: 56,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       CircularProgressIndicator(
                         value: (_seconds % 60) / 60,
-                        strokeWidth: 5,
+                        strokeWidth: 4,
                         backgroundColor: Colors.white24,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           AppColors.primary,
@@ -105,28 +106,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         _chronometer,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            color: Colors.black,
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  onPressed: _togglePause,
-                  icon: Icon(
-                    _paused ? Icons.play_arrow : Icons.pause,
-                    color: Colors.white,
-                    size: 36,
                   ),
                 ),
                 IconButton(
