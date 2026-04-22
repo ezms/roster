@@ -18,6 +18,7 @@ class Footer extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
         BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Turma'),
+        BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'Admin'),
         BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Relatórios'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Configurações'),
       ],

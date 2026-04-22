@@ -5,8 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Header extends StatelessWidget implements PreferredSizeWidget {
   final ChangeNotifier controller;
   final String Function() schoolName;
+  final bool showBackButton;
 
-  const Header({super.key, required this.controller, required this.schoolName});
+  const Header({super.key, required this.controller, required this.schoolName, this.showBackButton = false});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
         ),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.surface,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: showBackButton,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

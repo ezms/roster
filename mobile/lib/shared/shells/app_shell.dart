@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
+import 'package:mobile/features/admin/controllers/admin_screen_controller.dart';
 import 'package:mobile/features/class/class_screen.dart';
 import 'package:mobile/features/home/home_screen.dart';
 import 'package:mobile/features/settings/settings_screen.dart';
+import 'package:mobile/features/admin/admin_screen.dart';
 import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
 import 'package:mobile/shared/controllers/user_controller.dart';
@@ -22,6 +24,7 @@ class _AppShellState extends State<AppShell> {
   late final SchoolController _schoolController;
   late final UserController _userController;
   late final ClassSelectionController _classSelectionController;
+  late final AdminScreenController _adminScreenController;
   late final List<Widget> _screens;
 
   int _currentIndex = 0;
@@ -32,9 +35,12 @@ class _AppShellState extends State<AppShell> {
     _schoolController = SchoolController();
     _userController = UserController(UserRepository());
     _classSelectionController = ClassSelectionController(ClassRepository());
+    _adminScreenController = AdminScreenController(ClassRepository());
+
     _screens = [
       HomeScreen(controller: _classSelectionController),
       ClassScreen(controller: _classSelectionController),
+      AdminScreen(controller: _adminScreenController, schoolController: _schoolController),
       const Placeholder(), // Relatórios
       SettingsScreen(schoolController: _schoolController, userController: _userController),
     ];
