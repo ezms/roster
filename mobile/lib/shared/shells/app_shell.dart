@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
+import 'package:mobile/features/class/class_screen.dart';
 import 'package:mobile/features/home/home_screen.dart';
 import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
@@ -28,7 +29,7 @@ class _AppShellState extends State<AppShell> {
     _classSelectionController = ClassSelectionController(ClassRepository());
     _screens = [
       HomeScreen(controller: _classSelectionController),
-      const Placeholder(), // Turma
+      ClassScreen(controller: _classSelectionController),
       const Placeholder(), // Relatórios
       const Placeholder(), // Configurações
     ];
