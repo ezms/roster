@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
+import 'package:mobile/shared/controllers/user_controller.dart';
 
 class UserInfoCard extends StatelessWidget {
   final SchoolController schoolController;
+  final UserController userController;
 
-  const UserInfoCard({super.key, required this.schoolController});
+  const UserInfoCard({
+    super.key,
+    required this.schoolController,
+    required this.userController,
+  });
+
+  String get _roleLabel {
+    return switch (userController.user?.role) {
+      'admin' => 'Administrador',
+      'teacher' => 'Professor',
+      _ => '—',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: schoolController,
+      animation: Listenable.merge([schoolController, userController]),
       builder: (context, _) => Container(
         width: double.infinity,
         margin: const EdgeInsets.all(16),
@@ -31,9 +45,9 @@ class UserInfoCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '—',
-                  style: TextStyle(
+                Text(
+                  userController.user?.name ?? '—',
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: AppColors.textPrimary,
@@ -41,11 +55,13 @@ class UserInfoCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
+                  _roleLabel,
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 2),
+                Text(
                   schoolController.schoolName,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ],
             ),

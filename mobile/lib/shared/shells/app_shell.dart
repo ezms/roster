@@ -5,7 +5,9 @@ import 'package:mobile/features/home/home_screen.dart';
 import 'package:mobile/features/settings/settings_screen.dart';
 import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
+import 'package:mobile/shared/controllers/user_controller.dart';
 import 'package:mobile/shared/repositories/class_repository.dart';
+import 'package:mobile/shared/repositories/user_repository.dart';
 import 'package:mobile/shared/widgets/footer.dart';
 import 'package:mobile/shared/widgets/header.dart';
 
@@ -18,6 +20,7 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late final SchoolController _schoolController;
+  late final UserController _userController;
   late final ClassSelectionController _classSelectionController;
   late final List<Widget> _screens;
 
@@ -27,12 +30,13 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
     _schoolController = SchoolController();
+    _userController = UserController(UserRepository());
     _classSelectionController = ClassSelectionController(ClassRepository());
     _screens = [
       HomeScreen(controller: _classSelectionController),
       ClassScreen(controller: _classSelectionController),
       const Placeholder(), // Relatórios
-      SettingsScreen(schoolController: _schoolController),
+      SettingsScreen(schoolController: _schoolController, userController: _userController),
     ];
   }
 

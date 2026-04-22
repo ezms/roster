@@ -5,12 +5,18 @@ import 'package:mobile/features/settings/models/settings_item_model.dart';
 import 'package:mobile/features/settings/widgets/settings_item.dart';
 import 'package:mobile/features/settings/widgets/user_info_card.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
+import 'package:mobile/shared/controllers/user_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatelessWidget {
   final SchoolController schoolController;
+  final UserController userController;
 
-  const SettingsScreen({super.key, required this.schoolController});
+  const SettingsScreen({
+    super.key,
+    required this.schoolController,
+    required this.userController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        UserInfoCard(schoolController: schoolController),
+        UserInfoCard(schoolController: schoolController, userController: userController),
         const SizedBox(height: 8),
         ...mainItems.map((item) => SettingsItem(model: item)),
         const Spacer(),
