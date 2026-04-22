@@ -1,5 +1,6 @@
 import { builder } from './builder';
 
+import './types/account';
 import './types/school';
 import './types/user';
 import './types/student';
