@@ -1,39 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
-import 'package:mobile/core/models/class.dart';
-import 'package:mobile/shared/controllers/class_controller.dart';
 import 'package:mobile/features/scanner/scanner_screen.dart';
+import 'package:mobile/shared/controllers/class_selection_controller.dart';
+import 'package:mobile/shared/widgets/class_selector.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final ClassSelectionController controller;
+
+  const HomeScreen({super.key, required this.controller});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final ClassController _classController;
-  Class? _selectedClass;
   bool _pressed = false;
 
   String get _buttonLabel {
-    if (!_classController.loaded) return '...';
-    if (_classController.classes.isEmpty) return 'Sem turmas';
-    if (_selectedClass == null) return 'Selecione uma turma';
+    if (!widget.controller.loaded) return '...';
+    if (widget.controller.classes.isEmpty) return 'Sem turmas';
+    if (widget.controller.selected == null) return 'Selecione uma turma';
     return 'Iniciar';
   }
 
   bool get _buttonEnabled =>
-      _classController.loaded &&
-      _classController.classes.isNotEmpty &&
-      _selectedClass != null;
+      widget.controller.loaded &&
+      widget.controller.classes.isNotEmpty &&
+      widget.controller.selected != null;
 
   @override
   void initState() {
     super.initState();
-    _classController = ClassController();
-    _classController.addListener(() => setState(() {}));
+    widget.controller.addListener(_rebuild);
   }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_rebuild);
+    super.dispose();
+  }
+
+  void _rebuild() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -41,22 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          !_classController.loaded
-              ? const CircularProgressIndicator()
-              : _classController.classes.isEmpty
-                  ? const Text('Nenhuma turma cadastrada')
-                  : DropdownButton<Class>(
-                      hint: const Text('Selecione uma turma'),
-                      value: _selectedClass,
-                      items: _classController.classes
-                          .map((c) => DropdownMenuItem(
-                                value: c,
-                                child: Text(c.name),
-                              ))
-                          .toList(),
-                      onChanged: (value) =>
-                          setState(() => _selectedClass = value),
-                    ),
+          ClassSelector(controller: widget.controller),
           const SizedBox(height: 32),
           AnimatedScale(
             scale: _pressed ? 0.42 : 1.0,
@@ -70,8 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? () => Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (_, _, _) =>
-                                const ScannerScreen(),
+                            pageBuilder: (_, _, _) => const ScannerScreen(),
                             transitionsBuilder: (_, animation, _, child) {
                               final curved = CurvedAnimation(
                                 parent: animation,

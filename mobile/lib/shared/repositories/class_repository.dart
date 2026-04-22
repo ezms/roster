@@ -1,23 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mobile/core/graphql_client.dart';
 import 'package:mobile/core/models/class.dart';
 
-class ClassController extends ChangeNotifier {
-  List<Class> classes = [];
-  bool loaded = false;
-
-  ClassController() {
-    _loadClasses();
-  }
-
-  Future<void> _loadClasses() async {
-    classes = await _fetchClasses();
-    loaded = true;
-    notifyListeners();
-  }
-
-  Future<List<Class>> _fetchClasses() async {
+class ClassRepository {
+  Future<List<Class>> fetchClasses() async {
     final client = await GraphqlClient.get();
     const query = r'''
       query {

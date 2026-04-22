@@ -17,7 +17,7 @@ class Footer extends StatelessWidget {
       unselectedItemColor: AppColors.textSecondary,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-        BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Escola'),
+        BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Turma'),
         BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Relatórios'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Configurações'),
       ],
