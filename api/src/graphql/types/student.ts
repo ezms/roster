@@ -1,6 +1,19 @@
 import { builder } from '../builder';
 import { Student } from '@/models/tenant/student';
+import { StudentCard } from '@/models/tenant/student-card';
 import { ClassStudent } from '@/models/tenant/class-student';
+
+const StudentCardRef = builder.objectRef<StudentCard>('StudentCard');
+StudentCardRef.implement({
+    fields: (t) => ({
+        id: t.exposeInt('id'),
+        version: t.exposeInt('version'),
+        issuedAt: t.field({
+            type: 'String',
+            resolve: (card) => card.issuedAt.toISOString(),
+        }),
+    }),
+});
 
 export const StudentRef = builder.objectRef<Student>('Student');
 
@@ -13,6 +26,17 @@ StudentRef.implement({
         createdAt: t.field({
             type: 'String',
             resolve: (student) => student.createdAt.toISOString(),
+        }),
+        card: t.field({
+            type: StudentCardRef,
+            nullable: true,
+            resolve: async (student, _, ctx) => {
+                const cards = await ctx.tenantConnection
+                    .getRepository(StudentCard)
+                    .find({ where: { studentId: student.id } });
+                if (cards.length === 0) return null;
+                return cards.reduce((latest, c) => c.version > latest.version ? c : latest);
+            },
         }),
     }),
 });
