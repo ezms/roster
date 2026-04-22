@@ -1,5 +1,6 @@
 import { builder } from '../builder';
 import { Student } from '@/models/tenant/student';
+import { ClassStudent } from '@/models/tenant/class-student';
 
 export const StudentRef = builder.objectRef<Student>('Student');
 
@@ -32,11 +33,50 @@ const UpdateStudentInput = builder.inputType('UpdateStudentInput', {
     }),
 });
 
+const StudentPageMetaRef = builder.objectRef<{ total: number; page: number; lastPage: number; limit: number }>('StudentPageMeta');
+StudentPageMetaRef.implement({
+    fields: (t) => ({
+        total: t.int({ resolve: (m) => m.total }),
+        page: t.int({ resolve: (m) => m.page }),
+        lastPage: t.int({ resolve: (m) => m.lastPage }),
+        limit: t.int({ resolve: (m) => m.limit }),
+    }),
+});
+
+const StudentPageRef = builder.objectRef<{ students: Student[]; meta: { total: number; page: number; lastPage: number; limit: number } }>('StudentPage');
+StudentPageRef.implement({
+    fields: (t) => ({
+        students: t.field({ type: [StudentRef], resolve: (p) => p.students }),
+        meta: t.field({ type: StudentPageMetaRef, resolve: (p) => p.meta }),
+    }),
+});
+
 builder.queryFields((t) => ({
     students: t.field({
         type: [StudentRef],
         resolve: (_root, _args, ctx) => {
             return ctx.tenantConnection.getRepository(Student).findAll();
+        },
+    }),
+    studentsByClass: t.field({
+        type: StudentPageRef,
+        args: {
+            classId: t.arg.int({ required: true }),
+            page: t.arg.int({ required: true }),
+            limit: t.arg.int({ required: true }),
+        },
+        resolve: async (_root, args, ctx) => {
+            const result = await ctx.tenantConnection
+                .getRepository(ClassStudent)
+                .findPaginated({ page: args.page, limit: args.limit, where: { classId: args.classId } });
+
+            const studentRepo = ctx.tenantConnection.getRepository(Student);
+            const students = await Promise.all(result.data.map((l) => studentRepo.findById(l.studentId)));
+
+            return {
+                students: students.filter((s) => s != null) as Student[],
+                meta: result.meta,
+            };
         },
     }),
     student: t.field({
