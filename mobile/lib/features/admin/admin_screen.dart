@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/features/admin/controllers/admin_screen_controller.dart';
 import 'package:mobile/features/admin/screens/classes/admin_classes_screen.dart';
+import 'package:mobile/features/admin/screens/students/admin_students_screen.dart';
 import 'package:mobile/features/admin/widgets/admin_item_card.dart';
 import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
@@ -60,14 +61,18 @@ class AdminScreen extends StatelessWidget {
           AdminItemCard(
             icon: const Text('👥', style: TextStyle(fontSize: 22)),
             title: 'Gestão de Alunos',
-            stats: const [
-              LabelValue(value: '350', label: 'Alunos Matriculados'),
-              LabelValue(value: '10', label: 'Contratados'),
-            ],
-            badges: const [10],
-            badgeLabel: '10 Matrículas Pendentes',
-            buttonText: 'Matricular Aluno',
-            onPressed: () {},
+            stats: const [],
+            badges: const [],
+            badgeLabel: '',
+            buttonText: 'Gerenciar Alunos',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AdminStudentsScreen(schoolController: schoolController),
+                ),
+              );
+            },
           ),
           AdminItemCard(
             icon: const Text('🪪', style: TextStyle(fontSize: 22)),
