@@ -4,6 +4,19 @@ import { StudentCard } from '@/models/tenant/student-card';
 import { ClassStudent } from '@/models/tenant/class-student';
 import { requireRole } from '../permissions';
 
+const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+
+async function generateStudentCode(repo: { exists: (where: object) => Promise<boolean> }): Promise<string> {
+    while (true) {
+        let suffix = '';
+        for (let i = 0; i < 5; i++) {
+            suffix += CROCKFORD[Math.floor(Math.random() * 32)];
+        }
+        const code = `ALU-${suffix}`;
+        if (!await repo.exists({ code })) return code;
+    }
+}
+
 const StudentCardRef = builder.objectRef<StudentCard>('StudentCard');
 StudentCardRef.implement({
     fields: (t) => ({
@@ -45,7 +58,6 @@ StudentRef.implement({
 const CreateStudentInput = builder.inputType('CreateStudentInput', {
     fields: (t) => ({
         name: t.string({ required: true }),
-        code: t.string({ required: true }),
         photoUrl: t.string({ required: false }),
     }),
 });
@@ -123,7 +135,7 @@ builder.mutationFields((t) => ({
             const repo = ctx.tenantConnection.getRepository(Student);
             const student = new Student();
             student.name = args.input.name;
-            student.code = args.input.code;
+            student.code = await generateStudentCode(repo);
             student.photoUrl = args.input.photoUrl ?? null;
             return repo.save(student);
         },
