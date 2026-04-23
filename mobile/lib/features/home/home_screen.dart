@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? () => Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (_, _, _) => const ScannerScreen(),
+                            pageBuilder: (_, _, _) => ScannerScreen(classId: widget.controller.selected!.id),
                             transitionsBuilder: (_, animation, _, child) {
                               final curved = CurvedAnimation(
                                 parent: animation,

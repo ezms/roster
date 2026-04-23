@@ -18,6 +18,13 @@ AttendanceRecordRef.implement({
             type: 'String',
             resolve: (record) => record.registeredAt.toISOString(),
         }),
+        student: t.field({
+            type: StudentRef,
+            resolve: (record, _args, ctx) =>
+                ctx.tenantConnection
+                    .getRepository(Student)
+                    .findOneOrFail({ where: { id: record.studentId } }),
+        }),
     }),
 });
 
