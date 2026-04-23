@@ -9,7 +9,9 @@ class AdminScreenController extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
 
-  AdminScreenController(this._classRepository);
+  AdminScreenController(this._classRepository) {
+    loadStats();
+  }
 
   Future<void> loadStats() async {
     isLoading = true;

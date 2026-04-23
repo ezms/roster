@@ -23,4 +23,27 @@ class ClassSelectionController extends ChangeNotifier {
     selected = classroom;
     notifyListeners();
   }
+
+  void setClasses(List<Class> list) {
+    classes = list;
+    notifyListeners();
+  }
+
+  void addClass(Class c) {
+    classes.add(c);
+    notifyListeners();
+  }
+
+  void updateClassInList(Class updated) {
+    final index = classes.indexWhere((c) => c.id == updated.id);
+    if (index != -1) {
+      classes[index] = updated;
+      notifyListeners();
+    }
+  }
+
+  void removeClassFromList(int id) {
+    classes.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
 }

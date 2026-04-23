@@ -28,7 +28,6 @@ class ClassRepository {
       query GetClassesAdminDashboard {
         classesAdmin {
           total
-          withoutTeacher
         }
       }
     """;

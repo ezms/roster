@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/core/models/class.dart';
+import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/repositories/class_repository.dart';
 
 class AdminClassesController extends ChangeNotifier {
   final ClassRepository _repository;
+  final ClassSelectionController _classSelectionController;
 
-  List<Class> classes = [];
   bool isLoading = false;
   String? errorMessage;
 
-  AdminClassesController(this._repository) {
+  AdminClassesController(this._repository, this._classSelectionController) {
     loadClasses();
   }
 
@@ -19,7 +19,7 @@ class AdminClassesController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      classes = await _repository.fetchClasses();
+      _classSelectionController.setClasses(await _repository.fetchClasses());
     } catch (e) {
       errorMessage = 'Não foi possível carregar as turmas.';
     } finally {
@@ -32,7 +32,7 @@ class AdminClassesController extends ChangeNotifier {
     try {
       final newClass = await _repository.createClass(name);
       
-      classes.add(newClass);
+      _classSelectionController.addClass(newClass);
       notifyListeners();
       
       return true;
@@ -45,11 +45,8 @@ class AdminClassesController extends ChangeNotifier {
     try {
       final updatedClass = await _repository.updateClass(id, name);
       
-      final index = classes.indexWhere((c) => c.id == id);
-      if (index != -1) {
-        classes[index] = updatedClass;
-        notifyListeners();
-      }
+      _classSelectionController.updateClassInList(updatedClass);
+      notifyListeners();
       
       return true;
     } catch (e) {
@@ -62,7 +59,7 @@ class AdminClassesController extends ChangeNotifier {
       final success = await _repository.deleteClass(id);
       
       if (success) {
-        classes.removeWhere((c) => c.id == id);
+        _classSelectionController.removeClassFromList(id);
         notifyListeners();
       }
       

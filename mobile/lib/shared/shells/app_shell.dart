@@ -40,16 +40,26 @@ class _AppShellState extends State<AppShell> {
     _screens = [
       HomeScreen(controller: _classSelectionController),
       ClassScreen(controller: _classSelectionController),
-      AdminScreen(controller: _adminScreenController, schoolController: _schoolController),
+      AdminScreen(
+        controller: _adminScreenController,
+        schoolController: _schoolController,
+        classSelectionController: _classSelectionController,
+      ),
       const Placeholder(), // Relatórios
-      SettingsScreen(schoolController: _schoolController, userController: _userController),
+      SettingsScreen(
+        schoolController: _schoolController,
+        userController: _userController,
+      ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Header(controller: _schoolController, schoolName: () => _schoolController.schoolName),
+      appBar: Header(
+        controller: _schoolController,
+        schoolName: () => _schoolController.schoolName,
+      ),
       backgroundColor: AppColors.background,
       body: _screens[_currentIndex],
       bottomNavigationBar: Footer(
