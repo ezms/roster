@@ -12,6 +12,10 @@ const _studentFields = '''
     version
     issuedAt
   }
+  currentClass {
+    id
+    name
+  }
 ''';
 
 class StudentPage {
@@ -80,6 +84,23 @@ class StudentRepository {
 
     if (result.hasException) throw Exception('Falha ao editar aluno');
     return Student.fromJson(result.data!['updateStudent']);
+  }
+
+  Future<bool> setStudentClass(int studentId, int? classId) async {
+    final client = await GraphqlClient.get();
+    const mutation = r'''
+      mutation SetStudentClass($studentId: Int!, $classId: Int) {
+        setStudentClass(studentId: $studentId, classId: $classId)
+      }
+    ''';
+
+    final result = await client.mutate(MutationOptions(
+      document: gql(mutation),
+      variables: {'studentId': studentId, 'classId': classId},
+    ));
+
+    if (result.hasException) throw Exception('Falha ao vincular turma');
+    return result.data!['setStudentClass'] ?? false;
   }
 
   Future<bool> deleteStudent(int id) async {

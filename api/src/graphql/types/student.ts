@@ -2,6 +2,8 @@ import { builder } from '../builder';
 import { Student } from '@/models/tenant/student';
 import { StudentCard } from '@/models/tenant/student-card';
 import { ClassStudent } from '@/models/tenant/class-student';
+import { Class } from '@/models/tenant/class';
+import { ClassRef } from './class';
 import { requireRole } from '../permissions';
 
 const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -50,6 +52,17 @@ StudentRef.implement({
                     .find({ where: { studentId: student.id } });
                 if (cards.length === 0) return null;
                 return cards.reduce((latest, c) => c.version > latest.version ? c : latest);
+            },
+        }),
+        currentClass: t.field({
+            type: ClassRef,
+            nullable: true,
+            resolve: async (student, _, ctx) => {
+                const link = await ctx.tenantConnection
+                    .getRepository(ClassStudent)
+                    .findOne({ where: { studentId: student.id } });
+                if (!link) return null;
+                return ctx.tenantConnection.getRepository(Class).findById(link.classId);
             },
         }),
     }),
@@ -164,6 +177,26 @@ builder.mutationFields((t) => ({
             const repo = ctx.tenantConnection.getRepository(Student);
             const student = await repo.findOneOrFail({ where: { id: args.id } });
             await repo.remove(student);
+            return true;
+        },
+    }),
+    setStudentClass: t.field({
+        type: 'Boolean',
+        args: {
+            studentId: t.arg.int({ required: true }),
+            classId: t.arg.int({ required: false }),
+        },
+        resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
+            const repo = ctx.tenantConnection.getRepository(ClassStudent);
+            const existing = await repo.findOne({ where: { studentId: args.studentId } });
+            if (existing) await repo.remove(existing);
+            if (args.classId != null) {
+                const link = new ClassStudent();
+                link.classId = args.classId;
+                link.studentId = args.studentId;
+                await repo.save(link);
+            }
             return true;
         },
     }),

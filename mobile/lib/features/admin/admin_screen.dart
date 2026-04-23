@@ -69,7 +69,10 @@ class AdminScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AdminStudentsScreen(schoolController: schoolController),
+                  builder: (_) => AdminStudentsScreen(
+                    schoolController: schoolController,
+                    classSelectionController: classSelectionController,
+                  ),
                 ),
               );
             },

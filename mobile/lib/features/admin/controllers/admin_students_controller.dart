@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/models/student.dart';
+import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/repositories/student_repository.dart';
 
 class AdminStudentsController extends ChangeNotifier {
   final StudentRepository _repository;
+  final ClassSelectionController classSelectionController;
 
   List<Student> students = [];
   bool isLoading = false;
   String? errorMessage;
 
-  AdminStudentsController(this._repository) {
+  AdminStudentsController(this._repository, this.classSelectionController) {
     loadStudents();
   }
 
@@ -48,6 +50,33 @@ class AdminStudentsController extends ChangeNotifier {
         notifyListeners();
       }
       return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> setStudentClass(int studentId, int? classId) async {
+    try {
+      final success = await _repository.setStudentClass(studentId, classId);
+      if (success) {
+        final index = students.indexWhere((s) => s.id == studentId);
+        if (index != -1) {
+          final current = students[index];
+          final newClass = classId != null
+              ? classSelectionController.classes.firstWhere((c) => c.id == classId)
+              : null;
+          students[index] = Student(
+            id: current.id,
+            name: current.name,
+            code: current.code,
+            photoUrl: current.photoUrl,
+            card: current.card,
+            currentClass: newClass,
+          );
+          notifyListeners();
+        }
+      }
+      return success;
     } catch (e) {
       return false;
     }

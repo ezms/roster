@@ -3,7 +3,7 @@ import { Class } from '@/models/tenant/class';
 import { ClassStudent } from '@/models/tenant/class-student';
 import { isRole, requireRole } from '../permissions';
 
-const ClassRef = builder.objectRef<Class>('Class');
+export const ClassRef = builder.objectRef<Class>('Class');
 
 ClassRef.implement({
     fields: (t) => ({
