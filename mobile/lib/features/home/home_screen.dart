@@ -48,7 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ClassSelector(controller: widget.controller),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: ClassSelector(controller: widget.controller),
+          ),
           const SizedBox(height: 32),
           AnimatedScale(
             scale: _pressed ? 0.42 : 1.0,
