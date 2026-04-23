@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/features/admin/controllers/admin_cards_controller.dart';
 import 'package:mobile/features/admin/controllers/admin_screen_controller.dart';
+import 'package:mobile/features/admin/screens/cards/admin_cards_screen.dart';
 import 'package:mobile/features/admin/screens/classes/admin_classes_screen.dart';
 import 'package:mobile/features/admin/screens/students/admin_students_screen.dart';
 import 'package:mobile/features/admin/widgets/admin_item_card.dart';
@@ -11,12 +13,14 @@ class AdminScreen extends StatelessWidget {
   final AdminScreenController controller;
   final SchoolController schoolController;
   final ClassSelectionController classSelectionController;
+  final AdminCardsController adminCardsController;
 
   const AdminScreen({
     super.key,
     required this.controller,
     required this.schoolController,
     required this.classSelectionController,
+    required this.adminCardsController,
   });
 
   @override
@@ -77,17 +81,39 @@ class AdminScreen extends StatelessWidget {
               );
             },
           ),
-          AdminItemCard(
-            icon: const Text('🪪', style: TextStyle(fontSize: 22)),
-            title: 'Gerenciar Carteirinhas',
-            stats: const [
-              LabelValue(value: '320', label: 'Carteirinhas v2 Emitidas'),
-              LabelValue(value: '30', label: 'Renovações Próximas'),
-            ],
-            badges: const [320, 30],
-            badgeLabel: '30 Próximas',
-            buttonText: 'Emitir Novas',
-            onPressed: () {},
+          ListenableBuilder(
+            listenable: adminCardsController,
+            builder: (context, _) {
+              final isLoading = adminCardsController.isLoading;
+              return AdminItemCard(
+                icon: const Text('🪪', style: TextStyle(fontSize: 22)),
+                title: 'Gerenciar Carteirinhas',
+                stats: [
+                  LabelValue(
+                    value: isLoading ? '...' : adminCardsController.totalWithCard.toString(),
+                    label: 'Carteirinhas Emitidas',
+                  ),
+                  LabelValue(
+                    value: isLoading ? '...' : adminCardsController.totalWithoutCard.toString(),
+                    label: 'Alunos sem Carteirinha',
+                  ),
+                ],
+                badges: const [],
+                badgeLabel: '',
+                buttonText: 'Visualizar',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AdminCardsScreen(
+                        schoolController: schoolController,
+                        controller: adminCardsController,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ],
       ),

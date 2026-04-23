@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
+import 'package:mobile/features/admin/controllers/admin_cards_controller.dart';
 import 'package:mobile/features/admin/controllers/admin_screen_controller.dart';
 import 'package:mobile/features/class/class_screen.dart';
 import 'package:mobile/features/home/home_screen.dart';
@@ -9,6 +10,7 @@ import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
 import 'package:mobile/shared/controllers/user_controller.dart';
 import 'package:mobile/shared/repositories/class_repository.dart';
+import 'package:mobile/shared/repositories/student_repository.dart';
 import 'package:mobile/shared/repositories/user_repository.dart';
 import 'package:mobile/shared/widgets/footer.dart';
 import 'package:mobile/shared/widgets/header.dart';
@@ -25,6 +27,7 @@ class _AppShellState extends State<AppShell> {
   late final UserController _userController;
   late final ClassSelectionController _classSelectionController;
   late final AdminScreenController _adminScreenController;
+  late final AdminCardsController _adminCardsController;
   late final List<Widget> _screens;
 
   int _currentIndex = 0;
@@ -36,6 +39,7 @@ class _AppShellState extends State<AppShell> {
     _userController = UserController(UserRepository());
     _classSelectionController = ClassSelectionController(ClassRepository());
     _adminScreenController = AdminScreenController(ClassRepository());
+    _adminCardsController = AdminCardsController(StudentRepository());
 
     _screens = [
       HomeScreen(controller: _classSelectionController),
@@ -44,6 +48,7 @@ class _AppShellState extends State<AppShell> {
         controller: _adminScreenController,
         schoolController: _schoolController,
         classSelectionController: _classSelectionController,
+        adminCardsController: _adminCardsController,
       ),
       const Placeholder(), // Relatórios
       SettingsScreen(
