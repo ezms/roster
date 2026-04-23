@@ -29,7 +29,27 @@ const UpdateClassInput = builder.inputType('UpdateClassInput', {
     }),
 });
 
+const ClassesAdminStatsRef = builder.objectRef<{ total: number; withoutTeacher: number }>('ClassesAdminStats');
+
+ClassesAdminStatsRef.implement({
+    fields: (t) => ({
+        total: t.exposeInt('total'),
+        withoutTeacher: t.exposeInt('withoutTeacher'),
+    }),
+});
+
 builder.queryFields((t) => ({
+    classesAdmin: t.field({
+        type: ClassesAdminStatsRef,
+        resolve: async (_root, _args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
+            const all = await ctx.tenantConnection.getRepository(Class).findAll();
+            return {
+                total: all.length,
+                withoutTeacher: all.filter((c) => !c.userId).length,
+            };
+        },
+    }),
     classes: t.field({
         type: [ClassRef],
         resolve: (_root, _args, ctx) => {
