@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
 import 'package:mobile/core/models/class.dart';
+import 'package:mobile/core/models/student.dart';
 import 'package:mobile/features/admin/controllers/admin_students_controller.dart';
 import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
 import 'package:mobile/shared/repositories/student_repository.dart';
+import 'package:mobile/shared/utils/student_card_pdf.dart';
 import 'package:mobile/shared/widgets/header.dart';
 
 class AdminStudentsScreen extends StatefulWidget {
@@ -216,6 +218,65 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
     );
   }
 
+  void _showActionsMenu(BuildContext context, Student student) {
+    final messenger = ScaffoldMessenger.of(context);
+    final hasCard = student.card != null;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.badge_outlined),
+              title: Text(hasCard ? 'Emitir Nova Via' : 'Emitir Carteirinha'),
+              onTap: () async {
+                Navigator.pop(context);
+                final updated = await _controller.issueStudentCard(student.id);
+                if (updated != null) {
+                  await StudentCardPdf.print(updated, widget.schoolController.schoolName);
+                } else if (context.mounted) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Erro ao emitir carteirinha')),
+                  );
+                }
+              },
+            ),
+            if (hasCard)
+              ListTile(
+                leading: const Icon(Icons.print_outlined),
+                title: const Text('Visualizar Carteirinha'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await StudentCardPdf.print(student, widget.schoolController.schoolName);
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Editar'),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditModal(student.id, student.name, student.currentClass);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Excluir', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(context, student.id, student.name);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showDeleteConfirmation(BuildContext context, int id, String name) {
     showDialog(
       context: context,
@@ -287,18 +348,9 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                         ? '${student.code} · ${student.currentClass!.name}'
                         : student.code,
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => _showEditModal(student.id, student.name, student.currentClass),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
-                        onPressed: () => _showDeleteConfirmation(context, student.id, student.name),
-                      ),
-                    ],
+                  trailing: IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () => _showActionsMenu(context, student),
                   ),
                 ),
               );

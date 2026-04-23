@@ -200,6 +200,29 @@ builder.mutationFields((t) => ({
             return true;
         },
     }),
+    issueStudentCard: t.field({
+        type: StudentRef,
+        args: { studentId: t.arg.int({ required: true }) },
+        resolve: async (_root, args, ctx) => {
+            requireRole(ctx, 'admin', 'secretary', 'teacher_admin');
+            const student = await ctx.tenantConnection
+                .getRepository(Student)
+                .findOneOrFail({ where: { id: args.studentId } });
+
+            const cardRepo = ctx.tenantConnection.getRepository(StudentCard);
+            const existing = await cardRepo.find({ where: { studentId: args.studentId } });
+            const nextVersion = existing.length > 0
+                ? Math.max(...existing.map((c) => c.version)) + 1
+                : 1;
+
+            const card = new StudentCard();
+            card.studentId = args.studentId;
+            card.version = nextVersion;
+            await cardRepo.save(card);
+
+            return student;
+        },
+    }),
     restoreStudent: t.field({
         type: StudentRef,
         args: { id: t.arg.int({ required: true }) },

@@ -86,6 +86,25 @@ class StudentRepository {
     return Student.fromJson(result.data!['updateStudent']);
   }
 
+  Future<Student> issueStudentCard(int studentId) async {
+    final client = await GraphqlClient.get();
+    final mutation = '''
+      mutation IssueStudentCard(\$studentId: Int!) {
+        issueStudentCard(studentId: \$studentId) {
+          $_studentFields
+        }
+      }
+    ''';
+
+    final result = await client.mutate(MutationOptions(
+      document: gql(mutation),
+      variables: {'studentId': studentId},
+    ));
+
+    if (result.hasException) throw Exception('Falha ao emitir carteirinha');
+    return Student.fromJson(result.data!['issueStudentCard']);
+  }
+
   Future<bool> setStudentClass(int studentId, int? classId) async {
     final client = await GraphqlClient.get();
     const mutation = r'''

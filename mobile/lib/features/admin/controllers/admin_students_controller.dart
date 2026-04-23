@@ -55,6 +55,20 @@ class AdminStudentsController extends ChangeNotifier {
     }
   }
 
+  Future<Student?> issueStudentCard(int studentId) async {
+    try {
+      final updated = await _repository.issueStudentCard(studentId);
+      final index = students.indexWhere((s) => s.id == studentId);
+      if (index != -1) {
+        students[index] = updated;
+        notifyListeners();
+      }
+      return updated;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<bool> setStudentClass(int studentId, int? classId) async {
     try {
       final success = await _repository.setStudentClass(studentId, classId);
