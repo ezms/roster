@@ -49,4 +49,9 @@ class HttpClient {
       options: Options(headers: headers),
     );
   }
+
+  static Future<Response> delete(String path) async {
+    final headers = await _buildHeaders();
+    return _dio.delete(path, options: Options(headers: headers));
+  }
 }

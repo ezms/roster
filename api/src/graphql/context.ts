@@ -34,21 +34,22 @@ export async function createContext(request: Request): Promise<Context> {
 
     if (!school) throw new Error('Tenant not found');
 
-    const hasAccess = await globalConnection.getRepository(AccountSchool).exists({
-        accountId: payload.accountId,
-        schoolId: school.id,
-    });
-
-    if (!hasAccess) throw new Error('Forbidden');
-
-    const tenantDbName = `roster_${tenantId}`;
-    const tenantConnection = await getTenantConnection(tenantDbName);
-
     const account = await globalConnection.getRepository(Account).findOne({
         where: { id: payload.accountId },
     });
 
     if (!account) throw new Error('Account not found');
+
+    if (account.platformRole !== 'super') {
+        const hasAccess = await globalConnection.getRepository(AccountSchool).exists({
+            accountId: payload.accountId,
+            schoolId: school.id,
+        });
+        if (!hasAccess) throw new Error('Forbidden');
+    }
+
+    const tenantDbName = `roster_${tenantId}`;
+    const tenantConnection = await getTenantConnection(tenantDbName);
 
     const tenantUser = await tenantConnection.getRepository(User).findOne({
         where: { accountId: payload.accountId },

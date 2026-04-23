@@ -9,9 +9,12 @@ class LoginController extends ChangeNotifier {
   String? _errorMessage;
   bool _needsSchoolSelection = false;
 
+  bool _isSuperUser = false;
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get needsSchoolSelection => _needsSchoolSelection;
+  bool get isSuperUser => _isSuperUser;
 
   Future<bool> login(String email, String password) async {
     _isLoading = true;
@@ -24,7 +27,8 @@ class LoginController extends ChangeNotifier {
         _errorMessage = 'Credenciais inválidas.';
         return false;
       }
-      await _resolveSchoolSelection();
+      _isSuperUser = await _authController.checkIsSuperUser();
+      if (!_isSuperUser) await _resolveSchoolSelection();
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');

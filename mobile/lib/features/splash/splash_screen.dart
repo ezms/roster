@@ -18,12 +18,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 3));
-    final hasToken = await AuthController().checkAuthTokenPresent();
+    final auth = AuthController();
+    final hasToken = await auth.checkAuthTokenPresent();
     if (!mounted) return;
-    Navigator.pushReplacementNamed(
-      context,
-      hasToken ? AppRouter.home : AppRouter.login,
-    );
+    if (!hasToken) {
+      Navigator.pushReplacementNamed(context, AppRouter.login);
+      return;
+    }
+    final isSuper = await auth.checkIsSuperUser();
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, isSuper ? AppRouter.super_ : AppRouter.home);
   }
 
   @override

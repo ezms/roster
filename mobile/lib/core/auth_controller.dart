@@ -7,6 +7,7 @@ class AuthController {
   static const String _tokenKey = "auth_token";
   static const String _tenantKey = "tenant_id";
   static const String _schoolNameKey = "school_name";
+  static const String _platformRoleKey = "platform_role";
 
   static List<School> _schools = [];
   static List<School> get schools => _schools;
@@ -17,10 +18,17 @@ class AuthController {
       if (response.statusCode != 200) return false;
       saveTokenPreference(response.data['token']);
       _schools = _mapSchoolsResponse(response.data['schools'] as List);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_platformRoleKey, response.data['platformRole'] as String? ?? 'user');
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  Future<bool> checkIsSuperUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_platformRoleKey) == 'super';
   }
 
   Future<void> selectSchool(School school) async {

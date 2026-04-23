@@ -25,7 +25,11 @@ class _LoginCardState extends State<LoginCard> {
       _passwordController.text.trim(),
     );
     if (!success || !mounted) return;
-    _controller.needsSchoolSelection ? _openSchoolPicker() : _goHome();
+    if (_controller.isSuperUser) {
+      _goSuper();
+    } else {
+      _controller.needsSchoolSelection ? _openSchoolPicker() : _goHome();
+    }
   }
 
   Future<void> _openSchoolPicker() async {
@@ -42,9 +46,8 @@ class _LoginCardState extends State<LoginCard> {
     );
   }
 
-  void _goHome() {
-    Navigator.pushReplacementNamed(context, '/home');
-  }
+  void _goHome() => Navigator.pushReplacementNamed(context, '/home');
+  void _goSuper() => Navigator.pushReplacementNamed(context, '/super');
 
   @override
   Widget build(BuildContext context) {
