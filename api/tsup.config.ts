@@ -7,5 +7,4 @@ export default defineConfig({
     clean: true,
     splitting: false,
     target: 'node20',
-    noExternal: ['mirror-orm'],
 });
