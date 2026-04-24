@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "node --env-file=.env --import tsx --watch src/index.ts",
-        "build": "tsc",
+        "build": "tsup",
         "start": "node dist/index.js",
         "lint": "eslint src",
         "lint:fix": "eslint src --fix",
@@ -33,6 +33,7 @@
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",
         "prettier": "^3.8.1",
+        "tsup": "^8.3.0",
         "tsx": "^4.7.1",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.57.2"
