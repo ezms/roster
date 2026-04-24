@@ -21,7 +21,7 @@
         "graphql-yoga": "^5.18.1",
         "hono": "^4.12.9",
         "ley": "^0.8.1",
-        "mirror-orm": "^1.0.4",
+        "mirror-orm": "^1.0.7",
         "mysql2": "^3.20.0",
         "qrcode": "^1.5.4"
     },
