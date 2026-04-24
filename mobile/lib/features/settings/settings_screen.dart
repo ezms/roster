@@ -7,6 +7,7 @@ import 'package:mobile/features/settings/widgets/user_info_card.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
 import 'package:mobile/shared/controllers/user_controller.dart';
 import 'package:mobile/core/auth_controller.dart';
+import 'package:mobile/features/settings/screens/help_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   final SchoolController schoolController;
@@ -37,10 +38,13 @@ class SettingsScreen extends StatelessWidget {
     ];
 
     final bottomItems = [
-      const SettingsItemModel(
+      SettingsItemModel(
         icon: Icons.help_outline,
         label: 'Ajuda',
-        onTap: null,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const HelpScreen()),
+        ),
       ),
       SettingsItemModel(
         icon: Icons.logout,

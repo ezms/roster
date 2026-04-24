@@ -45,10 +45,19 @@ class _AppShellState extends State<AppShell> {
     _adminCardsController = AdminCardsController(StudentRepository());
     _reportsController = ReportsController(ReportsRepository());
 
-    _userController.addListener(() => setState(() => _currentIndex = 0));
+    _userController.addListener(() {
+      final screens = _screens;
+      setState(() {
+        if (_currentIndex >= screens.length) _currentIndex = 0;
+      });
+    });
   }
 
-  bool get _showAdmin => _userController.user?.role != 'teacher';
+  bool get _showAdmin {
+    final role = _userController.user?.role;
+    if (role == null) return false;
+    return role != 'teacher';
+  }
 
   List<Widget> get _screens {
     final all = [
