@@ -99,7 +99,11 @@ class _SuperAdminShellState extends State<SuperAdminShell> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Administração da Plataforma'),
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text('Administração da Plataforma'),
+        ),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [

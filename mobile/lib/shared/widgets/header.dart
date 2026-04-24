@@ -14,9 +14,14 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) => AppBar(
-        title: Text(
-          schoolName(),
-          style: const TextStyle(fontSize: 16, color: AppColors.textOnPrimary),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            schoolName(),
+            style: const TextStyle(fontSize: 16, color: AppColors.textOnPrimary),
+            maxLines: 1,
+          ),
         ),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.surface,

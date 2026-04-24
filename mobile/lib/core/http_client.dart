@@ -2,7 +2,10 @@ import 'dart:io' as dart_io;
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile/app.dart';
 import 'package:mobile/core/app_config.dart';
+import 'package:mobile/core/app_router.dart';
+import 'package:mobile/core/auth_controller.dart';
 
 class HttpClient {
   static final Dio _dio = _buildDio();
@@ -21,6 +24,17 @@ class HttpClient {
       client.badCertificateCallback = (cert, host, port) => false;
       return client;
     };
+
+    dio.interceptors.add(InterceptorsWrapper(
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 401) {
+          await AuthController().clearAll();
+          navigatorKey.currentState
+              ?.pushNamedAndRemoveUntil(AppRouter.login, (_) => false);
+        }
+        handler.next(error);
+      },
+    ));
 
     return dio;
   }
