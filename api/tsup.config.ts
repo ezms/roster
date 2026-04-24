@@ -6,4 +6,5 @@ export default defineConfig({
     outDir: 'dist',
     clean: true,
     splitting: false,
+    target: 'node20',
 });
