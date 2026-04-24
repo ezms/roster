@@ -225,6 +225,10 @@ class _FilterSection extends StatelessWidget {
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: () => controller.generateReport(classSelectionController.classes),
+          style: FilledButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.textOnPrimary,
+          ),
           icon: const Icon(Icons.bar_chart, size: 18),
           label: const Text('Gerar relatório'),
         ),
@@ -467,6 +471,10 @@ class _ExportButtons extends StatelessWidget {
         Expanded(
           child: FilledButton.icon(
             onPressed: onPdf,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.textOnPrimary,
+            ),
             icon: const Icon(Icons.picture_as_pdf, size: 18),
             label: const Text('Emitir Relatório (PDF)'),
           ),
@@ -475,6 +483,10 @@ class _ExportButtons extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onCsv,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.textOnPrimary,
+            ),
             icon: const Icon(Icons.table_chart, size: 18),
             label: const Text('Exportar (CSV)'),
           ),

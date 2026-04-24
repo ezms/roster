@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/models/school.dart';
 import 'package:mobile/features/super_admin/super_admin_repository.dart';
@@ -77,7 +78,10 @@ class SuperAdminController extends ChangeNotifier {
       usersCache[schoolId] = [...(usersCache[schoolId] ?? []), user];
       notifyListeners();
       return true;
-    } catch (_) {
+    } on EmailAlreadyInUseError {
+      rethrow;
+    } catch (e, st) {
+      debugPrint('createUser error: $e\n$st');
       return false;
     }
   }

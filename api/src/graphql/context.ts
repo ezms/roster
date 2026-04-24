@@ -62,6 +62,6 @@ export async function createContext(request: Request): Promise<Context> {
         accountId: payload.accountId,
         isSuperUser: account.platformRole === 'super',
         tenantUserId: tenantUser?.id ?? null,
-        tenantUserRole: tenantUser?.role ?? null,
+        tenantUserRole: tenantUser?.role ?? (account.platformRole === 'super' ? 'admin' : null),
     };
 }

@@ -54,11 +54,16 @@ class ScannerController extends ChangeNotifier {
       final studentName = await _repository.registerAttendance(code);
       feedback = ScanFeedback(status: ScanStatus.success, message: studentName);
     } on AlreadyRegisteredError {
-      feedback = const ScanFeedback(status: ScanStatus.alreadyRegistered, message: 'Aluno já registrado');
+      feedback = const ScanFeedback(
+        status: ScanStatus.alreadyRegistered,
+        message: 'Já registrado nesta chamada. Somente na próxima sessão.',
+      );
     } on StudentNotFoundError {
       feedback = const ScanFeedback(status: ScanStatus.notFound, message: 'Aluno não encontrado');
+    } on CommunicationError {
+      feedback = const ScanFeedback(status: ScanStatus.error, message: 'Erro de comunicação, tente novamente');
     } catch (_) {
-      feedback = const ScanFeedback(status: ScanStatus.error, message: 'Erro ao registrar');
+      feedback = const ScanFeedback(status: ScanStatus.error, message: 'Erro de comunicação, tente novamente');
     }
 
     notifyListeners();

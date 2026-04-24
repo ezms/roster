@@ -25,9 +25,15 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacementNamed(context, AppRouter.login);
       return;
     }
+    final hasTenant = await auth.checkAuthTenantIdPresent();
+    if (!mounted) return;
+    if (hasTenant) {
+      Navigator.pushReplacementNamed(context, AppRouter.home);
+      return;
+    }
     final isSuper = await auth.checkIsSuperUser();
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, isSuper ? AppRouter.super_ : AppRouter.home);
+    Navigator.pushReplacementNamed(context, isSuper ? AppRouter.super_ : AppRouter.login);
   }
 
   @override

@@ -25,7 +25,7 @@ class _LoginCardState extends State<LoginCard> {
       _passwordController.text.trim(),
     );
     if (!success || !mounted) return;
-    if (_controller.isSuperUser) {
+    if (_controller.isSuperUser && AuthController.schools.isEmpty) {
       _goSuper();
     } else {
       _controller.needsSchoolSelection ? _openSchoolPicker() : _goHome();

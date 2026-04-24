@@ -74,9 +74,15 @@ class AttendanceRepository {
     ));
 
     if (result.hasException) {
-      final msg = result.exception.toString();
-      if (msg.contains('already registered')) throw const AlreadyRegisteredError();
-      throw const StudentNotFoundError();
+      final graphqlErrors = result.exception?.graphqlErrors ?? [];
+      if (graphqlErrors.any((e) => e.message.contains('already registered'))) {
+        throw const AlreadyRegisteredError();
+      }
+      if (graphqlErrors.any((e) => e.message.contains('not found'))) {
+        throw const StudentNotFoundError();
+      }
+      if (graphqlErrors.isNotEmpty) throw const StudentNotFoundError();
+      throw const CommunicationError();
     }
 
     return result.data!['registerAttendance']['student']['name'] as String;
@@ -89,4 +95,8 @@ class AlreadyRegisteredError implements Exception {
 
 class StudentNotFoundError implements Exception {
   const StudentNotFoundError();
+}
+
+class CommunicationError implements Exception {
+  const CommunicationError();
 }

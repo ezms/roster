@@ -6,7 +6,7 @@ export async function up(client: Connection) {
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             account_id INT UNSIGNED NOT NULL,
             name VARCHAR(255) NOT NULL,
-            role ENUM('admin', 'teacher') NOT NULL,
+            role ENUM('admin', 'teacher', 'secretary', 'teacher_admin') NOT NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
     `);

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:mobile/core/http_client.dart';
 import 'package:mobile/core/models/school.dart';
 
@@ -53,14 +54,23 @@ class SuperAdminRepository {
     required String name,
     required String role,
   }) async {
-    final response = await HttpClient.post(
-      '/super/schools/$schoolId/users',
-      data: {'email': email, 'password': password, 'name': name, 'role': role},
-    );
-    return SuperAdminUser.fromJson(response.data as Map<String, dynamic>);
+    try {
+      final response = await HttpClient.post(
+        '/super/schools/$schoolId/users',
+        data: {'email': email, 'password': password, 'name': name, 'role': role},
+      );
+      return SuperAdminUser.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) throw const EmailAlreadyInUseError();
+      rethrow;
+    }
   }
 
   Future<void> deleteUser(int schoolId, int userId) async {
     await HttpClient.delete('/super/schools/$schoolId/users/$userId');
   }
+}
+
+class EmailAlreadyInUseError implements Exception {
+  const EmailAlreadyInUseError();
 }

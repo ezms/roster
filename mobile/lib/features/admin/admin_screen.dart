@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/core/auth_controller.dart';
 import 'package:mobile/features/admin/controllers/admin_cards_controller.dart';
 import 'package:mobile/features/admin/controllers/admin_screen_controller.dart';
 import 'package:mobile/features/admin/screens/cards/admin_cards_screen.dart';
 import 'package:mobile/features/admin/screens/classes/admin_classes_screen.dart';
 import 'package:mobile/features/admin/screens/students/admin_students_screen.dart';
 import 'package:mobile/features/admin/widgets/admin_item_card.dart';
+import 'package:mobile/features/super_admin/super_admin_shell.dart';
 import 'package:mobile/shared/controllers/class_selection_controller.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
 import 'package:mobile/shared/models/label_value.dart';
 
-class AdminScreen extends StatelessWidget {
+class AdminScreen extends StatefulWidget {
   final AdminScreenController controller;
   final SchoolController schoolController;
   final ClassSelectionController classSelectionController;
@@ -24,6 +26,21 @@ class AdminScreen extends StatelessWidget {
   });
 
   @override
+  State<AdminScreen> createState() => _AdminScreenState();
+}
+
+class _AdminScreenState extends State<AdminScreen> {
+  bool _isSuperUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    AuthController().checkIsSuperUser().then((value) {
+      if (mounted) setState(() => _isSuperUser = value);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(top: 12, bottom: 16),
@@ -31,10 +48,10 @@ class AdminScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListenableBuilder(
-            listenable: controller,
+            listenable: widget.controller,
             builder: (context, _) {
-              final stats = controller.stats;
-              final isLoading = controller.isLoading;
+              final stats = widget.controller.stats;
+              final isLoading = widget.controller.isLoading;
 
               return AdminItemCard(
                 icon: const Text('🏫', style: TextStyle(fontSize: 22)),
@@ -53,8 +70,8 @@ class AdminScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => AdminClassesScreen(
-                        schoolController: schoolController,
-                        classSelectionController: classSelectionController,
+                        schoolController: widget.schoolController,
+                        classSelectionController: widget.classSelectionController,
                       ),
                     ),
                   );
@@ -74,27 +91,27 @@ class AdminScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (_) => AdminStudentsScreen(
-                    schoolController: schoolController,
-                    classSelectionController: classSelectionController,
+                    schoolController: widget.schoolController,
+                    classSelectionController: widget.classSelectionController,
                   ),
                 ),
               );
             },
           ),
           ListenableBuilder(
-            listenable: adminCardsController,
+            listenable: widget.adminCardsController,
             builder: (context, _) {
-              final isLoading = adminCardsController.isLoading;
+              final isLoading = widget.adminCardsController.isLoading;
               return AdminItemCard(
                 icon: const Text('🪪', style: TextStyle(fontSize: 22)),
                 title: 'Gerenciar Carteirinhas',
                 stats: [
                   LabelValue(
-                    value: isLoading ? '...' : adminCardsController.totalWithCard.toString(),
+                    value: isLoading ? '...' : widget.adminCardsController.totalWithCard.toString(),
                     label: 'Carteirinhas Emitidas',
                   ),
                   LabelValue(
-                    value: isLoading ? '...' : adminCardsController.totalWithoutCard.toString(),
+                    value: isLoading ? '...' : widget.adminCardsController.totalWithoutCard.toString(),
                     label: 'Alunos sem Carteirinha',
                   ),
                 ],
@@ -106,8 +123,8 @@ class AdminScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => AdminCardsScreen(
-                        schoolController: schoolController,
-                        controller: adminCardsController,
+                        schoolController: widget.schoolController,
+                        controller: widget.adminCardsController,
                       ),
                     ),
                   );
@@ -115,6 +132,21 @@ class AdminScreen extends StatelessWidget {
               );
             },
           ),
+          if (_isSuperUser)
+            AdminItemCard(
+              icon: const Text('🔧', style: TextStyle(fontSize: 22)),
+              title: 'Gestão de Plataforma',
+              stats: const [],
+              badges: const [],
+              badgeLabel: '',
+              buttonText: 'Gerenciar Escolas e Usuários',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SuperAdminShell()),
+                );
+              },
+            ),
         ],
       ),
     );

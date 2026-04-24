@@ -32,7 +32,6 @@ class _AppShellState extends State<AppShell> {
   late final AdminScreenController _adminScreenController;
   late final AdminCardsController _adminCardsController;
   late final ReportsController _reportsController;
-  late final List<Widget> _screens;
 
   int _currentIndex = 0;
 
@@ -46,15 +45,22 @@ class _AppShellState extends State<AppShell> {
     _adminCardsController = AdminCardsController(StudentRepository());
     _reportsController = ReportsController(ReportsRepository());
 
-    _screens = [
+    _userController.addListener(() => setState(() => _currentIndex = 0));
+  }
+
+  bool get _showAdmin => _userController.user?.role != 'teacher';
+
+  List<Widget> get _screens {
+    final all = [
       HomeScreen(controller: _classSelectionController),
       ClassScreen(controller: _classSelectionController),
-      AdminScreen(
-        controller: _adminScreenController,
-        schoolController: _schoolController,
-        classSelectionController: _classSelectionController,
-        adminCardsController: _adminCardsController,
-      ),
+      if (_showAdmin)
+        AdminScreen(
+          controller: _adminScreenController,
+          schoolController: _schoolController,
+          classSelectionController: _classSelectionController,
+          adminCardsController: _adminCardsController,
+        ),
       ReportsScreen(
         controller: _reportsController,
         classSelectionController: _classSelectionController,
@@ -65,20 +71,45 @@ class _AppShellState extends State<AppShell> {
         userController: _userController,
       ),
     ];
+    return all;
+  }
+
+  List<BottomNavigationBarItem> get _navItems {
+    return [
+      const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
+      const BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Turma'),
+      if (_showAdmin)
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.admin_panel_settings),
+          label: 'Admin',
+        ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.bar_chart),
+        label: 'Relatórios',
+      ),
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.settings),
+        label: 'Configurações',
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final screens = _screens;
+    final safeIndex = _currentIndex.clamp(0, screens.length - 1);
+
     return Scaffold(
       appBar: Header(
         controller: _schoolController,
         schoolName: () => _schoolController.schoolName,
       ),
       backgroundColor: AppColors.background,
-      body: _screens[_currentIndex],
+      body: screens[safeIndex],
       bottomNavigationBar: Footer(
-        currentIndex: _currentIndex,
+        currentIndex: safeIndex,
         onTap: (i) => setState(() => _currentIndex = i),
+        items: _navItems,
       ),
     );
   }

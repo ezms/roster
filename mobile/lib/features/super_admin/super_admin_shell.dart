@@ -6,6 +6,26 @@ import 'package:mobile/features/super_admin/super_admin_controller.dart';
 import 'package:mobile/features/super_admin/super_admin_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+InputDecoration _inputDecoration(String label) => InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.primary),
+      ),
+    );
+
 class SuperAdminShell extends StatefulWidget {
   const SuperAdminShell({super.key});
 
@@ -38,7 +58,7 @@ class _SuperAdminShellState extends State<SuperAdminShell> {
         content: TextField(
           controller: nameController,
           autofocus: true,
-          decoration: const InputDecoration(labelText: 'Nome da escola'),
+          decoration: _inputDecoration('Nome da escola'),
           textCapitalization: TextCapitalization.words,
         ),
         actions: [
@@ -47,6 +67,7 @@ class _SuperAdminShellState extends State<SuperAdminShell> {
             child: const Text('Cancelar'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () async {
               final name = nameController.text.trim();
               if (name.isEmpty) return;
@@ -203,6 +224,7 @@ class _SchoolCard extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: onUsers,
+              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
               icon: const Icon(Icons.people, size: 18),
               label: const Text('Usuários'),
             ),
@@ -262,25 +284,25 @@ class _UsersSheetState extends State<_UsersSheet> {
               children: [
                 TextField(
                   controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Nome'),
+                  decoration: _inputDecoration('Nome'),
                   textCapitalization: TextCapitalization.words,
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: emailCtrl,
-                  decoration: const InputDecoration(labelText: 'E-mail'),
+                  decoration: _inputDecoration('E-mail'),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: passwordCtrl,
-                  decoration: const InputDecoration(labelText: 'Senha'),
+                  decoration: _inputDecoration('Senha'),
                   obscureText: true,
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: selectedRole,
-                  decoration: const InputDecoration(labelText: 'Função'),
+                  decoration: _inputDecoration('Função'),
                   items: _roles
                       .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                       .toList(),
@@ -295,6 +317,7 @@ class _UsersSheetState extends State<_UsersSheet> {
               child: const Text('Cancelar'),
             ),
             FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
               onPressed: () async {
                 final name = nameCtrl.text.trim();
                 final email = emailCtrl.text.trim();
@@ -302,18 +325,28 @@ class _UsersSheetState extends State<_UsersSheet> {
                 if (name.isEmpty || email.isEmpty || password.isEmpty) return;
                 Navigator.pop(ctx);
                 final messenger = ScaffoldMessenger.of(context);
-                final ok = await widget.controller.createUser(
-                  widget.school.id,
-                  name: name,
-                  email: email,
-                  password: password,
-                  role: selectedRole,
-                );
-                if (ok) await _load();
-                if (mounted) {
-                  messenger.showSnackBar(SnackBar(
-                    content: Text(ok ? 'Usuário criado com sucesso' : 'Erro ao criar usuário'),
-                  ));
+                try {
+                  final ok = await widget.controller.createUser(
+                    widget.school.id,
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: selectedRole,
+                  );
+                  if (ok) await _load();
+                  if (mounted) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Usuário criado com sucesso')),
+                    );
+                  }
+                } on EmailAlreadyInUseError {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('E-mail já está em uso por outra conta')),
+                  );
+                } catch (_) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Erro ao criar usuário')),
+                  );
                 }
               },
               child: const Text('Criar'),
@@ -344,6 +377,7 @@ class _UsersSheetState extends State<_UsersSheet> {
                 ),
                 FilledButton.icon(
                   onPressed: _showAddUserDialog,
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
                   icon: const Icon(Icons.person_add, size: 16),
                   label: const Text('Adicionar'),
                 ),

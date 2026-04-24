@@ -28,7 +28,7 @@ class LoginController extends ChangeNotifier {
         return false;
       }
       _isSuperUser = await _authController.checkIsSuperUser();
-      if (!_isSuperUser) await _resolveSchoolSelection();
+      await _resolveSchoolSelection();
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -49,6 +49,7 @@ class LoginController extends ChangeNotifier {
   }
 
   Future<void> _resolveSchoolSelection() async {
+    if (AuthController.schools.isEmpty) return;
     if (AuthController.schools.length > 1) {
       _needsSchoolSelection = true;
       notifyListeners();

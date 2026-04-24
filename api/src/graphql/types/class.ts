@@ -49,7 +49,7 @@ builder.queryFields((t) => ({
     classes: t.field({
         type: [ClassRef],
         resolve: (_root, _args, ctx) => {
-            if (!ctx.tenantUserId) throw new Error('User not found in tenant');
+            if (!ctx.tenantUserId && !ctx.isSuperUser) throw new Error('User not found in tenant');
             if (isRole(ctx, 'admin', 'secretary', 'teacher_admin')) {
                 return ctx.tenantConnection.getRepository(Class).findAll();
             }
@@ -63,7 +63,7 @@ builder.queryFields((t) => ({
         nullable: true,
         args: { id: t.arg.int({ required: true }) },
         resolve: (_root, args, ctx) => {
-            if (!ctx.tenantUserId) throw new Error('User not found in tenant');
+            if (!ctx.tenantUserId && !ctx.isSuperUser) throw new Error('User not found in tenant');
             if (isRole(ctx, 'admin', 'secretary', 'teacher_admin')) {
                 return ctx.tenantConnection.getRepository(Class).findOne({
                     where: { id: args.id },
@@ -116,7 +116,7 @@ builder.mutationFields((t) => ({
         },
         resolve: async (_root, args, ctx) => {
             requireRole(ctx, 'teacher', 'teacher_admin', 'admin');
-            if (!ctx.tenantUserId) throw new Error('User not found in tenant');
+            if (!ctx.tenantUserId && !ctx.isSuperUser) throw new Error('User not found in tenant');
             const repo = ctx.tenantConnection.getRepository(Class);
             const where = isRole(ctx, 'admin', 'teacher_admin')
                 ? { id: args.id }
@@ -131,7 +131,7 @@ builder.mutationFields((t) => ({
         args: { id: t.arg.int({ required: true }) },
         resolve: async (_root, args, ctx) => {
             requireRole(ctx, 'teacher', 'teacher_admin', 'admin');
-            if (!ctx.tenantUserId) throw new Error('User not found in tenant');
+            if (!ctx.tenantUserId && !ctx.isSuperUser) throw new Error('User not found in tenant');
             const repo = ctx.tenantConnection.getRepository(Class);
             const where = isRole(ctx, 'admin', 'teacher_admin')
                 ? { id: args.id }
