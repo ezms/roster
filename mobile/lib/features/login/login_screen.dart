@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/core/app_colors.dart';
-import 'package:mobile/core/app_config.dart';
 import 'package:mobile/features/login/widgets/login_card.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -32,8 +31,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const Text(
-              // 'Faça login para continuar',
-              AppConfig.baseUrl,
+              'Faça login para continuar',
               style: TextStyle(
                 fontSize: 16,
                 color: AppColors.textSecondary,

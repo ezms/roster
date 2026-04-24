@@ -12,7 +12,7 @@ class GraphqlClient {
     final tenantId = await _secure.read(key: 'tenant_id') ?? '';
 
     final link = HttpLink(
-      '${AppConfig.baseUrl}graphql',
+      '${AppConfig.baseUrl}/graphql',
       defaultHeaders: {
         'Authorization': 'Bearer $token',
         'X-Tenant-ID': tenantId,
