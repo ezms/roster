@@ -6,7 +6,7 @@ import 'package:mobile/features/settings/widgets/settings_item.dart';
 import 'package:mobile/features/settings/widgets/user_info_card.dart';
 import 'package:mobile/shared/controllers/school_controller.dart';
 import 'package:mobile/shared/controllers/user_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/core/auth_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
   final SchoolController schoolController;
@@ -48,8 +48,7 @@ class SettingsScreen extends StatelessWidget {
         labelColor: AppColors.error,
         iconColor: AppColors.error,
         onTap: () async {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.clear();
+          await AuthController().clearAll();
           if (context.mounted) {
             Navigator.pushReplacementNamed(context, '/');
           }

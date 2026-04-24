@@ -4,7 +4,7 @@ import 'package:mobile/core/app_router.dart';
 import 'package:mobile/core/models/school.dart';
 import 'package:mobile/features/super_admin/super_admin_controller.dart';
 import 'package:mobile/features/super_admin/super_admin_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile/core/auth_controller.dart';
 
 InputDecoration _inputDecoration(String label) => InputDecoration(
       labelText: label,
@@ -43,8 +43,7 @@ class _SuperAdminShellState extends State<SuperAdminShell> {
   }
 
   Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await AuthController().clearAll();
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, AppRouter.login);
   }

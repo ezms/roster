@@ -1,20 +1,37 @@
+import 'dart:io' as dart_io;
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/core/app_config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpClient {
-  static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: AppConfig.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      headers: {'Content-Type': 'application/json'},
-    ),
+  static final Dio _dio = _buildDio();
+
+  static Dio _buildDio() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: AppConfig.baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
+
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final client = dart_io.HttpClient();
+      client.badCertificateCallback = (cert, host, port) => false;
+      return client;
+    };
+
+    return dio;
+  }
+
+  static const _secure = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
   static Future<Map<String, String>> _buildHeaders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token') ?? '';
-    final tenant = prefs.getString('tenant_id');
+    final token = await _secure.read(key: 'auth_token') ?? '';
+    final tenant = await _secure.read(key: 'tenant_id');
 
     final headers = <String, String>{};
     if (token.isNotEmpty) {
