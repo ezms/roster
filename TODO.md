@@ -20,9 +20,9 @@
 ## Endpoints da API sem uso no mobile
 
 ### REST
-- `POST /auth/register` — criação de conta direta (atualmente via super admin)
-- `GET /reports/classes/:classId` — relatório por turma (substituído pelo `attendanceReport` GraphQL)
-- `POST /cards/:studentId/issue` e `GET /cards/:studentId` — duplicam a mutation GraphQL
+- ~~`POST /auth/register`~~ removido
+- ~~`GET /reports/classes/:classId`~~ removido
+- ~~`POST /cards/:studentId/issue` e `GET /cards/:studentId`~~ removidos
 
 ### GraphQL — queries sem uso
 - `student` (detalhe individual), `class` (detalhe individual)
