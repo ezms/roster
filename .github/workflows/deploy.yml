@@ -24,4 +24,4 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git remote add space https://ezms:$HF_TOKEN@huggingface.co/spaces/ezms/roster-api
-          git subtree push --prefix=api space main
+          git push space $(git subtree split --prefix=api main):main --force
