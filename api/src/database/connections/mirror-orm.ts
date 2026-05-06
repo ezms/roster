@@ -10,6 +10,7 @@ function getConnection(database: string, env: Env): Promise<Connection> {
             port: Number(env.DB_PORT),
             user: env.DB_USER,
             password: env.DB_PASSWORD,
+            ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : undefined,
             database,
         }).catch((error) => {
             pool.delete(database);
