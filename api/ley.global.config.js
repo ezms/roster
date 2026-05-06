@@ -1,8 +1,13 @@
+import { EnvSchema } from './src/types/env.ts';
+
+const env = EnvSchema.parse(process.env);
+
 export default {
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: Number(process.env.DB_PORT) || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'root',
-    database: process.env.DB_GLOBALDB_NAME || 'roster',
+    host: env.DB_HOST,
+    port: Number(env.DB_PORT),
+    user: env.DB_USER,
+    password: env.DB_PASSWORD,
+    ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: true } : undefined,
+    database: env.DB_GLOBALDB_NAME,
     multipleStatements: true,
 };
