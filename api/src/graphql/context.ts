@@ -5,6 +5,7 @@ import { Account } from '@/models/global/account';
 import { AccountSchool } from '@/models/global/account-school';
 import { School } from '@/models/global/school';
 import { User } from '@/models/tenant/user';
+import type { Env } from '@/types/env';
 
 export interface Context {
     globalConnection: Connection;
@@ -16,7 +17,7 @@ export interface Context {
     tenantUserRole: User['role'] | null;
 }
 
-export async function createContext(request: Request): Promise<Context> {
+export async function createContext(request: Request, env: Env): Promise<Context> {
     const tenantId = request.headers.get('X-Tenant-ID');
     if (!tenantId) throw new Error('Missing X-Tenant-ID header');
 
@@ -24,9 +25,9 @@ export async function createContext(request: Request): Promise<Context> {
     if (!authorization) throw new Error('Missing Authorization header');
 
     const token = authorization.replace('Bearer ', '');
-    const payload = await verify(token, process.env.JWT_SECRET || 'secret', 'HS256') as { accountId: number };
+    const payload = await verify(token, env.JWT_SECRET, 'HS256') as { accountId: number };
 
-    const globalConnection = await getGlobalConnection();
+    const globalConnection = await getGlobalConnection(env);
 
     const school = await globalConnection.getRepository(School).findOne({
         where: { databaseHash: tenantId },
@@ -49,7 +50,7 @@ export async function createContext(request: Request): Promise<Context> {
     }
 
     const tenantDbName = `roster_${tenantId}`;
-    const tenantConnection = await getTenantConnection(tenantDbName);
+    const tenantConnection = await getTenantConnection(tenantDbName, env);
 
     const tenantUser = await tenantConnection.getRepository(User).findOne({
         where: { accountId: payload.accountId },

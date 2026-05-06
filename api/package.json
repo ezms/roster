@@ -23,7 +23,8 @@
         "ley": "^0.8.1",
         "mirror-orm": "^1.0.7",
         "mysql2": "^3.20.0",
-        "qrcode": "^1.5.4"
+        "qrcode": "^1.5.4",
+        "zod": "^4.4.3"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",

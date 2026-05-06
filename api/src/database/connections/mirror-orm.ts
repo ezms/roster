@@ -1,14 +1,15 @@
 import { Connection } from 'mirror-orm';
+import type { Env } from '@/types/env';
 
 const pool = new Map<string, Promise<Connection>>();
 
-function getConnection(database: string): Promise<Connection> {
+function getConnection(database: string, env: Env): Promise<Connection> {
     if (!pool.has(database)) {
         const promise = Connection.mysql({
-            host: process.env.DB_HOST || 'localhost',
-            port: Number(process.env.DB_PORT) || 3306,
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || 'root',
+            host: env.DB_HOST,
+            port: Number(env.DB_PORT),
+            user: env.DB_USER,
+            password: env.DB_PASSWORD,
             database,
         }).catch((error) => {
             pool.delete(database);
@@ -19,10 +20,10 @@ function getConnection(database: string): Promise<Connection> {
     return pool.get(database)!;
 }
 
-export function getGlobalConnection(): Promise<Connection> {
-    return getConnection(process.env.DB_GLOBALDB_NAME || 'roster');
+export function getGlobalConnection(env: Env): Promise<Connection> {
+    return getConnection(env.DB_GLOBALDB_NAME, env);
 }
 
-export function getTenantConnection(dbName: string): Promise<Connection> {
-    return getConnection(dbName);
+export function getTenantConnection(dbName: string, env: Env): Promise<Connection> {
+    return getConnection(dbName, env);
 }

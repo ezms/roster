@@ -6,14 +6,15 @@ import { In } from 'mirror-orm';
 import { Account } from '@/models/global/account';
 import { AccountSchool } from '@/models/global/account-school';
 import { School } from '@/models/global/school';
+import type { Env } from '@/types/env';
 
 const DUMMY_HASH = await hash('__dummy__', 10);
 
-export function loadAuthRoutes(app: Hono) {
+export function loadAuthRoutes(app: Hono<{ Bindings: Env }>) {
     app.post('/auth/login', async (c) => {
         const { email, password } = await c.req.json<{ email: string; password: string }>();
 
-        const conn = await getGlobalConnection();
+        const conn = await getGlobalConnection(c.env);
         const account = await conn.getRepository(Account).findOne({
             where: { email },
         });
@@ -42,7 +43,7 @@ export function loadAuthRoutes(app: Hono) {
 
         const token = await sign(
             { accountId: account.id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 },
-            process.env.JWT_SECRET || 'secret',
+            c.env.JWT_SECRET,
             'HS256',
         );
 

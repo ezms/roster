@@ -12,18 +12,19 @@ import { Account } from '@/models/global/account';
 import { AccountSchool } from '@/models/global/account-school';
 import { School } from '@/models/global/school';
 import { User } from '@/models/tenant/user';
+import type { Env } from '@/types/env';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-async function requireSuper(c: { req: { header: (k: string) => string | undefined } }) {
+async function requireSuper(c: { req: { header: (k: string) => string | undefined } }, env: Env) {
     const authorization = c.req.header('Authorization');
     if (!authorization) return null;
     try {
         const token = authorization.replace('Bearer ', '');
-        const payload = (await verify(token, process.env.JWT_SECRET || 'secret', 'HS256')) as {
+        const payload = (await verify(token, env.JWT_SECRET, 'HS256')) as {
             accountId: number;
         };
-        const globalConn = await getGlobalConnection();
+        const globalConn = await getGlobalConnection(env);
         const account = await globalConn
             .getRepository(Account)
             .findOne({ where: { id: payload.accountId } });
@@ -34,12 +35,12 @@ async function requireSuper(c: { req: { header: (k: string) => string | undefine
     }
 }
 
-async function runTenantMigrations(dbName: string) {
+async function runTenantMigrations(dbName: string, env: Env) {
     const conn = await mysql.createConnection({
-        host: process.env.DB_HOST || '127.0.0.1',
-        port: Number(process.env.DB_PORT) || 3306,
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || 'root',
+        host: env.DB_HOST,
+        port: Number(env.DB_PORT),
+        user: env.DB_USER,
+        password: env.DB_PASSWORD,
         database: dbName,
         multipleStatements: true,
     });
@@ -57,9 +58,9 @@ async function runTenantMigrations(dbName: string) {
     await conn.end();
 }
 
-export function loadSuperRoutes(app: Hono) {
+export function loadSuperRoutes(app: Hono<{ Bindings: Env }>) {
     app.get('/super/schools', async (c) => {
-        const ctx = await requireSuper(c);
+        const ctx = await requireSuper(c, c.env);
         if (!ctx) return c.json({ error: 'Forbidden' }, 403);
 
         const schools = await ctx.globalConn.getRepository(School).findAll();
@@ -67,7 +68,7 @@ export function loadSuperRoutes(app: Hono) {
     });
 
     app.post('/super/schools', async (c) => {
-        const ctx = await requireSuper(c);
+        const ctx = await requireSuper(c, c.env);
         if (!ctx) return c.json({ error: 'Forbidden' }, 403);
 
         const { name } = await c.req.json<{ name: string }>();
@@ -77,17 +78,17 @@ export function loadSuperRoutes(app: Hono) {
         const dbName = `roster_${dbHash}`;
 
         const rawConn = await mysql.createConnection({
-            host: process.env.DB_HOST || '127.0.0.1',
-            port: Number(process.env.DB_PORT) || 3306,
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || 'root',
+            host: c.env.DB_HOST,
+            port: Number(c.env.DB_PORT),
+            user: c.env.DB_USER,
+            password: c.env.DB_PASSWORD,
         });
 
         try {
             await rawConn.query(`CREATE DATABASE \`${dbName}\``);
             await rawConn.end();
 
-            await runTenantMigrations(dbName);
+            await runTenantMigrations(dbName, c.env);
 
             const school = new School();
             school.name = name.trim();
@@ -97,10 +98,10 @@ export function loadSuperRoutes(app: Hono) {
             return c.json(saved, 201);
         } catch (err) {
             const rollback = await mysql.createConnection({
-                host: process.env.DB_HOST || '127.0.0.1',
-                port: Number(process.env.DB_PORT) || 3306,
-                user: process.env.DB_USER || 'root',
-                password: process.env.DB_PASSWORD || 'root',
+                host: c.env.DB_HOST,
+                port: Number(c.env.DB_PORT),
+                user: c.env.DB_USER,
+                password: c.env.DB_PASSWORD,
             });
             await rollback.query(`DROP DATABASE IF EXISTS \`${dbName}\``).catch(() => {});
             await rollback.end();
@@ -109,7 +110,7 @@ export function loadSuperRoutes(app: Hono) {
     });
 
     app.delete('/super/schools/:id', async (c) => {
-        const ctx = await requireSuper(c);
+        const ctx = await requireSuper(c, c.env);
         if (!ctx) return c.json({ error: 'Forbidden' }, 403);
 
         const id = Number(c.req.param('id'));
@@ -130,7 +131,7 @@ export function loadSuperRoutes(app: Hono) {
     });
 
     app.get('/super/schools/:id/users', async (c) => {
-        const ctx = await requireSuper(c);
+        const ctx = await requireSuper(c, c.env);
         if (!ctx) return c.json({ error: 'Forbidden' }, 403);
 
         const id = Number(c.req.param('id'));
@@ -139,7 +140,7 @@ export function loadSuperRoutes(app: Hono) {
             .findOne({ where: { id } });
         if (!school) return c.json({ error: 'Not found' }, 404);
 
-        const tenantConn = await getTenantConnection(`roster_${school.databaseHash}`);
+        const tenantConn = await getTenantConnection(`roster_${school.databaseHash}`, c.env);
         const users = await tenantConn.getRepository(User).findAll();
 
         if (users.length === 0) return c.json([]);
@@ -161,7 +162,7 @@ export function loadSuperRoutes(app: Hono) {
     });
 
     app.post('/super/schools/:id/users', async (c) => {
-        const ctx = await requireSuper(c);
+        const ctx = await requireSuper(c, c.env);
         if (!ctx) return c.json({ error: 'Forbidden' }, 403);
 
         const schoolId = Number(c.req.param('id'));
@@ -191,7 +192,7 @@ export function loadSuperRoutes(app: Hono) {
         link.schoolId = schoolId;
         await ctx.globalConn.getRepository(AccountSchool).save(link);
 
-        const tenantConn = await getTenantConnection(`roster_${school.databaseHash}`);
+        const tenantConn = await getTenantConnection(`roster_${school.databaseHash}`, c.env);
         const user = new User();
         user.accountId = savedAccount.id;
         user.name = name.trim();
@@ -202,7 +203,7 @@ export function loadSuperRoutes(app: Hono) {
     });
 
     app.delete('/super/schools/:schoolId/users/:userId', async (c) => {
-        const ctx = await requireSuper(c);
+        const ctx = await requireSuper(c, c.env);
         if (!ctx) return c.json({ error: 'Forbidden' }, 403);
 
         const schoolId = Number(c.req.param('schoolId'));
@@ -213,7 +214,7 @@ export function loadSuperRoutes(app: Hono) {
             .findOne({ where: { id: schoolId } });
         if (!school) return c.json({ error: 'Not found' }, 404);
 
-        const tenantConn = await getTenantConnection(`roster_${school.databaseHash}`);
+        const tenantConn = await getTenantConnection(`roster_${school.databaseHash}`, c.env);
         const user = await tenantConn.getRepository(User).findOneOrFail({ where: { id: userId } });
 
         const link = await ctx.globalConn
