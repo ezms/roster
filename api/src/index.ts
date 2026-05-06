@@ -1,3 +1,12 @@
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Rejeição não tratada em:', promise, 'razão:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('❌ Exceção não capturada:', err);
+    process.exit(1);
+});
+
 import { serve } from '@hono/node-server';
 import app from './app';
 import { loadRoutes } from './routes';
