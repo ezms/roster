@@ -1,20 +1,10 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig([
-    {
-        entry: ['src/index.ts'],
-        format: ['esm'],
-        outDir: 'dist',
-        clean: true,
-        splitting: false,
-        target: 'node20',
-    },
-    {
-        entry: ['src/worker.ts'],
-        format: ['esm'],
-        outDir: 'dist',
-        splitting: false,
-        target: 'esnext',
-        platform: 'browser',
-    },
-]);
+export default defineConfig({
+    entry: ['src/index.ts'],
+    format: ['esm'],
+    outDir: 'dist',
+    clean: true,
+    splitting: false,
+    target: 'node20',
+});
