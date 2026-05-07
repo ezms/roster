@@ -20,7 +20,7 @@ const yoga = createYoga<ServerContext>({
 });
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const templatePath = join(__dirname, '../resources/templates/landing.html');
+const templatePath = join(__dirname, 'resources/templates/landing.html');
 const graphqlLink = `<a class="graphql-link" href="/graphql">GraphQL Playground</a>`;
 
 const landingPage = readFileSync(templatePath, 'utf-8')
