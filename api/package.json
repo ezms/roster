@@ -9,8 +9,8 @@
         "lint:fix": "eslint src --fix",
         "format": "prettier --write src",
         "format:check": "prettier --check src",
-        "migrate:global": "node --env-file=.env --import tsx node_modules/ley/bin.js up --dir src/migrations/global --config ley.global.config.js",
-        "migrate:tenant": "node --env-file=.env --import tsx node_modules/ley/bin.js up --dir src/migrations/tenant --config ley.tenant.config.js",
+        "migrate:global": "node --import tsx node_modules/ley/bin.js up --dir src/migrations/global --config ley.global.config.js",
+        "migrate:tenant": "node --import tsx node_modules/ley/bin.js up --dir src/migrations/tenant --config ley.tenant.config.js",
         "tenant:create": "node --env-file=.env --import tsx src/scripts/create-tenant.ts",
         "seed": "node --env-file=.env --import tsx src/scripts/seed.ts"
     },
